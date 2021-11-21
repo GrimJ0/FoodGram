@@ -10,6 +10,9 @@ class Ingredient(models.Model):
     ing_count = models.IntegerField()
     unit_measurement = models.CharField(max_length=20)
 
+    def __str__(self):
+        return f"{self.title} {self.ing_count}{self.unit_measurement}"
+
 
 class Recipe(models.Model):
     """Модель рецептов"""
@@ -20,7 +23,7 @@ class Recipe(models.Model):
     )
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="recipes", verbose_name='Автор')
     title = models.CharField(verbose_name='Название рецепта', max_length=50)
-    ingredient = models.ManyToManyField(Ingredient, verbose_name='Ингредиенты')
+    ingredient = models.ManyToManyField(Ingredient, verbose_name='Ингредиенты', related_name="ingredients")
     teg = MultiSelectField(choices=TEGS)
     text = models.TextField(verbose_name='Описание', help_text='Введите текст описания')
     image = models.ImageField(upload_to='recipes/',
@@ -28,3 +31,7 @@ class Recipe(models.Model):
                               help_text='Добавьте изображение'
                               )
     time = models.IntegerField(verbose_name='Время приготовления')
+    pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
+
+    def __str__(self):
+        return self.title
