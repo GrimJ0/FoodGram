@@ -16,7 +16,7 @@ __pycache__/
 *.sublime-workspace
 
 static/
-recipes/
+media/recipes/
 media/
 
 db.sqlite3

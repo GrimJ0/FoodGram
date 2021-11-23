@@ -23,7 +23,7 @@ class RecipeIngredient(models.Model):
 
 class Recipe(models.Model):
     """Модель рецептов"""
-    TEGS = (
+    TAGS = (
         ('BREAKFAST', 'Завтрак'),
         ('LUNCH', 'Обед'),
         ('DINNER', 'Ужин')
@@ -32,7 +32,7 @@ class Recipe(models.Model):
     title = models.CharField(verbose_name='Название рецепта', max_length=50)
     ingredient = models.ManyToManyField(RecipeIngredient, verbose_name='Ингредиенты',
                                       related_name="ingredients")
-    teg = MultiSelectField(choices=TEGS)
+    tag = MultiSelectField(choices=TAGS)
     text = models.TextField(verbose_name='Описание', help_text='Введите текст описания')
     image = models.ImageField(upload_to='recipes/',
                               verbose_name='Загрузить фото',
@@ -43,3 +43,4 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.title
+

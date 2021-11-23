@@ -3,7 +3,7 @@ from .models import Recipe, Ingredient, RecipeIngredient
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ("pk", "author", "title", "teg", "text", "image", "time")
+    list_display = ("pk", "author", "title", "tag", "text", "image", "time")
     filter_horizontal = ("ingredient",)
     search_fields = ("title",)
     empty_value_display = "-пусто-"
