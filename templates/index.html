@@ -21,8 +21,8 @@
             </ul>
         </div>
         <div class="card-list">
-            {% for recipe in recipes %}
-                    <div class="card" data-id="120">
+            {% for recipe in page %}
+                    <div class="card" data-id="{{ recipe.id }}">
                         {% thumbnail recipe.image "960x339" crop="center" upscale=True as im %}
                             <a href="#" class="link" target="_blank"><img src="{{ im.url }}" alt="Какой-то текст" class="card__image"></a>
                         {% endthumbnail %}
@@ -43,4 +43,7 @@
                     </div>
             {% endfor %}
         </div>
+            {% if page.has_other_pages %}
+                {% include "skeleton/paginator.html" with items=page paginator=paginator%}
+            {% endif %}
 {% endblock %}

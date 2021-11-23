@@ -12,6 +12,11 @@ class Ingredient(models.Model):
     def __str__(self):
         return f"{self.title}"
 
+    class Meta:
+        ordering = ('-title',)
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
 
 class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
@@ -19,6 +24,11 @@ class RecipeIngredient(models.Model):
 
     def __str__(self):
         return f"{self.ingredient.title} {self.ing_count}{self.ingredient.unit_measurement}"
+
+    class Meta:
+        ordering = ('-ingredient',)
+        verbose_name = 'Ингредиент для рецепта'
+        verbose_name_plural = 'Ингредиенты для рецептов'
 
 
 class Recipe(models.Model):
@@ -31,7 +41,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="recipes", verbose_name='Автор')
     title = models.CharField(verbose_name='Название рецепта', max_length=50)
     ingredient = models.ManyToManyField(RecipeIngredient, verbose_name='Ингредиенты',
-                                      related_name="ingredients")
+                                        related_name="ingredients")
     tag = MultiSelectField(choices=TAGS)
     text = models.TextField(verbose_name='Описание', help_text='Введите текст описания')
     image = models.ImageField(upload_to='recipes/',
@@ -44,3 +54,7 @@ class Recipe(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        ordering = ('-pub_date',)
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
