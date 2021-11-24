@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static '/pages/form.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="main__header">
+        <h1 class="main__title">Создание рецепта</h1>
+    </div>
+    <div class="form-container">
+        <form class="form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form__group">
+                <label for="{{ form.title.id_for_label }}" class="form__label">{{form.title.label}}</label>
+                <div class="form__field-group">
+                    <input type="text" id="{{ form.title.id_for_label }}" name="name" class="form__input">
+                    <span class="form__error">{{ form.title.errors }}</span>
+                </div>
+            </div>
+            <div class="form__group">
+                <p class="form__label">Теги</p>
+                <div class="form__field-group">
+                    <div class="tags">
+                        <div class="tags__item">
+                            <input type="checkbox" name="breakfast" id="id_breakfast" class="tags__checkbox tags__checkbox_style_orange">
+                            <label for="id_breakfast" class="tags__label">Завтрак</label>
+                        </div>
+                        <div class="tags__item">
+                            <input type="checkbox" name="lunch" id="id_lunch" class="tags__checkbox tags__checkbox_style_green" checked>
+                            <label for="id_lunch" class="tags__label">Обед</label>
+                        </div>
+                        <div class="tags__item">
+                            <input type="checkbox" name="dinner" id="id_dinner" class="tags__checkbox tags__checkbox_style_purple" checked>
+                            <label for="id_dinner" class="tags__label">Ужин</label>
+                        </div>
+                    </div>
+                    <span class="form__error"></span>
+                </div>
+            </div>
+            <div class="form__group">
+                <label for="{{ form.ingredient.title.id_for_label }}" class="form__label">{{ form.ingredient.title }}</label>
+                <div class="form__field-group">
+                    <div class="form__field-group-ingredientes">
+                        <div class="form__dropdown">
+                            <input type="text" id="{{ form.ingredient.title.id_for_label }}" class="form__input">
+                            <div class="form__dropdown-items"></div>
+                        </div>
+                        <input type="number" id="{{ form.ingredient.unit_measurement.id_for_label }}" class="form__input" min="0">
+                        <label for="{{ form.ingredient.unit_measurement.id_for_label }}" class="form__label" id="cantidadVal">шт.</label>
+                    </div>
+                    <div class="form__field-group-ingredientes-container">
+
+                    </div>
+                    <span class="form__ingredient-link" id="{{ form.ingredient.id_for_label }}">Добавить ингредиент</span>
+                    <span class="{{ form.ingredient.error }}"></span>
+                </div>
+            </div>
+            <div class="form__group">
+                <label for="{{ form.time.id_for_label }}" class="form__label">{{form.time.label}}</label>
+                <div class="form__field-group form__field-group_time">
+                    <input type="text" id="{{ form.time.id_for_label }}" name="name" class="form__input">
+                    <label for="{{ form.time.id_for_label }}" class="form__label">минут</label>
+                    <span class="{{ form.time.error }}"></span>
+                </div>
+            </div>
+            <div class="form__group">
+                <label for="{{ form.description.id_for_label }}" class="form__label">{{form.description.label}}</label>
+                <div class="form__field-group">
+                    <textarea name="description" id="{{ form.description.id_for_label }}" rows="8" class="form__textarea"></textarea>
+                    <span class="{{ form.description.error }}"></span>
+                </div>
+            </div>
+            <div class="form__group">
+                <span class="form__label">{{form.image.label}}</span>
+                <div class="form__field-group">
+                    <label for="{{ form.image.id_for_label }}" class="form__file-button">Выбрать файл</label>
+                    <input type="file" class="form__file" name="file" id="{{ form.image.id_for_label }}">
+                    <span class="{{ form.image.error }}"></span>
+                </div>
+            </div>
+            <div class="form__footer">
+                <button class="button button_style_blue">Создать рецепт</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
