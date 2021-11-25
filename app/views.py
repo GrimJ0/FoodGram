@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, DetailView
 
@@ -36,21 +37,18 @@ from .models import Recipe
 
 
 class IndexView(ListView):
-
     paginate_by = 2
     model = Recipe
     template_name = 'index.html'
 
 
 class RecipeDetail(DetailView):
-
     model = Recipe
     slug_url_kwarg = 'recipe_slug'
     template_name = 'recipe.html'
 
-class NewRecipeView(CreateView):
 
+class NewRecipeView(CreateView):
     form_class = RecipeForm
     template_name = 'new_recipe.html'
     # success_url = reverse_lazy('recipe')
-
