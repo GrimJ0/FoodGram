@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls import reverse
 from multiselectfield import MultiSelectField
 
 User = get_user_model()
@@ -13,9 +14,9 @@ class Ingredient(models.Model):
         return f"{self.title}"
 
     class Meta:
-        ordering = ('-title',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        ordering = ('-title',)
 
 
 class RecipeIngredient(models.Model):
@@ -26,9 +27,9 @@ class RecipeIngredient(models.Model):
         return f"{self.ingredient.title} {self.ing_count}{self.ingredient.unit_measurement}"
 
     class Meta:
-        ordering = ('-ingredient',)
         verbose_name = 'Ингредиент для рецепта'
         verbose_name_plural = 'Ингредиенты для рецептов'
+        ordering = ('-ingredient',)
 
 
 class Recipe(models.Model):
@@ -49,12 +50,16 @@ class Recipe(models.Model):
                               help_text='Добавьте изображение'
                               )
     time = models.IntegerField(verbose_name='Время приготовления')
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="slug")
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
 
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return reverse('recipe', kwargs={'recipe_slug': self.slug})
+
     class Meta:
-        ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ('-pub_date',)
