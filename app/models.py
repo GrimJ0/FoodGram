@@ -2,13 +2,14 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from multiselectfield import MultiSelectField
+from autoslug import AutoSlugField
+
 
 User = get_user_model()
 
-
 class Ingredient(models.Model):
-    title = models.CharField(max_length=50)
-    unit_measurement = models.CharField(max_length=20)
+    title = models.CharField(max_length=50, verbose_name='Название ингредиента')
+    unit_measurement = models.CharField(max_length=20, verbose_name='Единицы измерения')
 
     def __str__(self):
         return f"{self.title}"
@@ -20,8 +21,8 @@ class Ingredient(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    ing_count = models.IntegerField()
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, verbose_name='Ингредиент')
+    ing_count = models.IntegerField(verbose_name='Количество')
 
     def __str__(self):
         return f"{self.ingredient.title} {self.ing_count}{self.ingredient.unit_measurement}"
@@ -49,12 +50,14 @@ class Recipe(models.Model):
                               verbose_name='Загрузить фото',
                               help_text='Добавьте изображение'
                               )
-    time = models.IntegerField(verbose_name='Время приготовления')
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="slug")
+    time = models.PositiveIntegerField(verbose_name='Время приготовления')
+    # slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="slug")
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
+    slug = AutoSlugField(populate_from='title', unique_with=['author__username', 'pub_date__month'], verbose_name="slug")
 
     def __str__(self):
         return self.title
+
 
     def get_absolute_url(self):
         return reverse('recipe', kwargs={'recipe_slug': self.slug})

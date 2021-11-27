@@ -1,39 +1,12 @@
-from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
+from django.shortcuts import redirect, render
+from django.views import View
 from django.views.generic import CreateView, ListView, DetailView
+from django.http import JsonResponse
+from django.db.models import F
 
 from .forms import RecipeForm
-from .models import Recipe
-
-
-# def index(request):
-#     """Функция вывода ингредиентов на главной странице"""
-#     recipes = Recipe.objects.order_by('-pub_date').all()
-#     paginator = Paginator(recipes, 1)  # показывать по 10 записей на странице.
-#
-#     page_number = request.GET.get('page')  # переменная в URL с номером запрошенной страницы
-#     page = paginator.get_page(page_number)  # получить записи с нужным смещением
-#     return render(
-#         request,
-#         'index.html',
-#         {'page': page, 'paginator': paginator}
-#     )
-
-
-# def new_recipe(request):
-#     """Функция создания поста"""
-#     if request.method == 'POST':
-#         form = RecipeForm(request.POST or None, request.FILES or None)
-#
-#         if form.is_valid():
-#             recipe = form.save(commit=False)
-#             recipe.author = request.user
-#             recipe.save()
-#             return redirect('index')
-#         return render(request, 'new_recipe.html', {'form': form})
-#     else:
-#         form = RecipeForm()
-#     return render(request, 'new_recipe.html', {'form': form})
+from .models import Recipe, Ingredient
+from .services import add_ingredient, add_tag
 
 
 class IndexView(ListView):
@@ -48,7 +21,36 @@ class RecipeDetail(DetailView):
     template_name = 'recipe.html'
 
 
+
+
 class NewRecipeView(CreateView):
     form_class = RecipeForm
     template_name = 'new_recipe.html'
-    # success_url = reverse_lazy('recipe')
+    slug_url_kwarg = 'recipe_slug'
+
+
+    def post(self, request, *args, **kwargs):
+        form = RecipeForm(request.POST, request.FILES)
+        ingredients = add_ingredient(request.POST)
+        tags = add_tag(request.POST)
+        if not ingredients:
+            return render(request, 'new_recipe.html')
+        if form.is_valid():
+            recipe = form.save(commit=False)
+            recipe.author = request.user
+            recipe.tag = tags
+            recipe.save()
+            recipe.ingredient.add(*ingredients)
+            return redirect("recipe", recipe.slug)
+        else:
+            return render(request, 'new_recipe.html')
+
+
+
+class IngredientApi(View):
+    def get(self, request):
+        ingredient = request.GET['query']
+        data = list(
+            Ingredient.objects.filter(title__startswith=ingredient).annotate(dimension=F('unit_measurement')).values(
+                'title', 'dimension'))
+        return JsonResponse(data, safe=False)

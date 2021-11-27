@@ -12,26 +12,26 @@
         <form class="form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form__group">
-                <label for="{{ form.title.id_for_label }}" class="form__label">{{form.title.label}}</label>
+                <label for="{{ form.title.id_for_label }}" class="form__label">{{ form.title.label }}</label>
                 <div class="form__field-group">
-                    <input type="text" id="{{ form.title.id_for_label }}" name="name" class="form__input">
-                    <span class="form__error">{{ form.title.errors }}</span>
+                    {{ form.title }}
+                    <span class="form__error"></span>
                 </div>
             </div>
             <div class="form__group">
-                <p class="form__label">Теги</p>
+                <p class="form__label">{{ form.tag.label }}</p>
                 <div class="form__field-group">
                     <div class="tags">
                         <div class="tags__item">
-                            <input type="checkbox" name="breakfast" id="id_breakfast" class="tags__checkbox tags__checkbox_style_orange">
+                            <input type="checkbox" name="BREAKFAST" id="id_breakfast" class="tags__checkbox tags__checkbox_style_orange">
                             <label for="id_breakfast" class="tags__label">Завтрак</label>
                         </div>
                         <div class="tags__item">
-                            <input type="checkbox" name="lunch" id="id_lunch" class="tags__checkbox tags__checkbox_style_green" checked>
+                            <input type="checkbox" name="LUNCH" id="id_lunch" class="tags__checkbox tags__checkbox_style_green">
                             <label for="id_lunch" class="tags__label">Обед</label>
                         </div>
                         <div class="tags__item">
-                            <input type="checkbox" name="dinner" id="id_dinner" class="tags__checkbox tags__checkbox_style_purple" checked>
+                            <input type="checkbox" name="DINNER" id="id_dinner" class="tags__checkbox tags__checkbox_style_purple">
                             <label for="id_dinner" class="tags__label">Ужин</label>
                         </div>
                     </div>
@@ -39,44 +39,43 @@
                 </div>
             </div>
             <div class="form__group">
-                <label for="{{ form.ingredient.title.id_for_label }}" class="form__label">{{ form.ingredient.title }}</label>
+                <label for="nameIngredient" class="form__label">Ингредиенты</label>
                 <div class="form__field-group">
                     <div class="form__field-group-ingredientes">
                         <div class="form__dropdown">
-                            <input type="text" id="{{ form.ingredient.title.id_for_label }}" class="form__input">
+                            <input type="text" id="nameIngredient" class="form__input">
                             <div class="form__dropdown-items"></div>
                         </div>
-                        <input type="number" id="{{ form.ingredient.unit_measurement.id_for_label }}" class="form__input" min="0">
-                        <label for="{{ form.ingredient.unit_measurement.id_for_label }}" class="form__label" id="cantidadVal">шт.</label>
+                        <input type="number" id="cantidad" class="form__input" min="0">
+                        <label for="cantidad" class="form__label" id="cantidadVal">шт.</label>
                     </div>
                     <div class="form__field-group-ingredientes-container">
-
                     </div>
-                    <span class="form__ingredient-link" id="{{ form.ingredient.id_for_label }}">Добавить ингредиент</span>
-                    <span class="{{ form.ingredient.error }}"></span>
+                    <span class="form__ingredient-link" id="addIng">Добавить ингредиент</span>
+                    <span class="form__error"></span>
                 </div>
             </div>
             <div class="form__group">
                 <label for="{{ form.time.id_for_label }}" class="form__label">{{form.time.label}}</label>
                 <div class="form__field-group form__field-group_time">
-                    <input type="text" id="{{ form.time.id_for_label }}" name="name" class="form__input">
+                    {{ form.time }}
                     <label for="{{ form.time.id_for_label }}" class="form__label">минут</label>
-                    <span class="{{ form.time.error }}"></span>
+                    <span class="form__error"></span>
                 </div>
             </div>
             <div class="form__group">
                 <label for="{{ form.description.id_for_label }}" class="form__label">{{form.description.label}}</label>
                 <div class="form__field-group">
-                    <textarea name="description" id="{{ form.description.id_for_label }}" rows="8" class="form__textarea"></textarea>
-                    <span class="{{ form.description.error }}"></span>
+                    {{ form.text }}
+                    <span class="form__error"></span>
                 </div>
             </div>
             <div class="form__group">
                 <span class="form__label">{{form.image.label}}</span>
                 <div class="form__field-group">
                     <label for="{{ form.image.id_for_label }}" class="form__file-button">Выбрать файл</label>
-                    <input type="file" class="form__file" name="file" id="{{ form.image.id_for_label }}">
-                    <span class="{{ form.image.error }}"></span>
+                        {{ form.image }}
+                    <span class="form__error"></span>
                 </div>
             </div>
             <div class="form__footer">
@@ -85,4 +84,14 @@
         </form>
     </div>
 
+
+
+
+<script src="{% static '/js/config/config.js' %}"></script>
+<script src="{% static '/js/components/Header.js' %}"></script>
+<script src="{% static '/js/utils/debouncing.js' %}"></script>
+<script src="{% static '/js/api/Api.js' %}"></script>
+<script src="{% static '/formRecipe.js' %}"></script>
+
 {% endblock %}
+

@@ -1,12 +1,20 @@
 from django import forms
-from .models import Recipe, RecipeIngredient
+
+from .models import Recipe
 
 
 class RecipeForm(forms.ModelForm):
     """Форма добавления рецептов"""
-    ingredient = forms.ModelChoiceField(queryset=RecipeIngredient.objects.all())
-    text = forms.CharField(widget=forms.Textarea)
 
     class Meta:
         model = Recipe
-        fields = ["title", "tag", "ingredient", "time", "text", "image"]
+        fields = ["title", "time", "text", "image"]
+        prepopulated_fields = {"slug": ("title",)}
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form__input'}),
+            'time': forms.TextInput(attrs={'class': 'form__input', 'min': '0'}),
+            'text': forms.Textarea(attrs={'class': 'form__textarea', 'rows': '8'}),
+            'image': forms.FileInput(attrs={'class': 'form__file'})
+        }
+
+
