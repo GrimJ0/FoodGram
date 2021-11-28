@@ -21,33 +21,27 @@ class RecipeDetail(DetailView):
     template_name = 'recipe.html'
 
 
-
-
 class NewRecipeView(CreateView):
     form_class = RecipeForm
     template_name = 'new_recipe.html'
     slug_url_kwarg = 'recipe_slug'
 
-
-    def post(self, request, *args, **kwargs):
-        form = RecipeForm(request.POST, request.FILES)
-        ingredients = add_ingredient(request.POST)
-        tags = add_tag(request.POST)
+    def form_valid(self, form):
+        ingredients = add_ingredient(self.request.POST)
+        tags = add_tag(self.request.POST)
         if not ingredients:
-            return render(request, 'new_recipe.html')
-        if form.is_valid():
-            recipe = form.save(commit=False)
-            recipe.author = request.user
-            recipe.tag = tags
-            recipe.save()
-            recipe.ingredient.add(*ingredients)
-            return redirect("recipe", recipe.slug)
-        else:
-            return render(request, 'new_recipe.html')
+            return render(self.request, 'new_recipe.html', {'form': form})
+        self.recipe = form.save(commit=False)
+        self.recipe.author = self.request.user
+        self.recipe.tag = tags
+        self.recipe.save()
+        self.recipe.ingredient.add(*ingredients)
+        return super().form_valid(form)
 
 
 
 class IngredientApi(View):
+
     def get(self, request):
         ingredient = request.GET['query']
         data = list(

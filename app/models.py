@@ -51,7 +51,6 @@ class Recipe(models.Model):
                               help_text='Добавьте изображение'
                               )
     time = models.PositiveIntegerField(verbose_name='Время приготовления')
-    # slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="slug")
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
     slug = AutoSlugField(populate_from='title', unique_with=['author__username', 'pub_date__month'], verbose_name="slug")
 
