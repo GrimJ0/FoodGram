@@ -48,3 +48,4 @@ class IngredientApi(View):
             Ingredient.objects.filter(title__startswith=ingredient).annotate(dimension=F('unit_measurement')).values(
                 'title', 'dimension'))
         return JsonResponse(data, safe=False)
+

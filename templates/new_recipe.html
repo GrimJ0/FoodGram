@@ -35,7 +35,7 @@
                             <label for="id_dinner" class="tags__label">Ужин</label>
                         </div>
                     </div>
-                    <span class="form__error"></span>
+                    <span class="form__error">{{ form.tag.errors }}</span>
                 </div>
             </div>
             <div class="form__group">
@@ -52,7 +52,7 @@
                     <div class="form__field-group-ingredientes-container">
                     </div>
                     <span class="form__ingredient-link" id="addIng">Добавить ингредиент</span>
-                    <span class="form__error"></span>
+                    <span class="form__error">{{ form.ingredient.errors }}</span>
                 </div>
             </div>
             <div class="form__group">
@@ -60,22 +60,21 @@
                 <div class="form__field-group form__field-group_time">
                     {{ form.time }}
                     <label for="{{ form.time.id_for_label }}" class="form__label">минут</label>
-                    <span class="form__error"></span>
+                    <span class="form__error">{{ form.time.errors }}</span>
                 </div>
             </div>
             <div class="form__group">
                 <label for="{{ form.description.id_for_label }}" class="form__label">{{form.description.label}}</label>
                 <div class="form__field-group">
                     {{ form.text }}
-                    <span class="form__error"></span>
+                    <span class="form__error">{{ form.text.errors }}</span>
                 </div>
             </div>
             <div class="form__group">
                 <span class="form__label">{{form.image.label}}</span>
                 <div class="form__field-group">
-                    <label for="{{ form.image.id_for_label }}" class="form__file-button">Выбрать файл</label>
-                        {{ form.image }}
-                    <span class="form__error"></span>
+                    {{ form.image }}
+                    <span class="form__error">{{ form.image.errors }}</span>
                 </div>
             </div>
             <div class="form__footer">

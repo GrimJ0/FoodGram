@@ -1,11 +1,12 @@
-from django.contrib.auth import get_user_model
+from foodgram import settings
 from django.db import models
 from django.urls import reverse
 from multiselectfield import MultiSelectField
 from autoslug import AutoSlugField
 
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
+
 
 class Ingredient(models.Model):
     title = models.CharField(max_length=50, verbose_name='Название ингредиента')
@@ -52,11 +53,11 @@ class Recipe(models.Model):
                               )
     time = models.PositiveIntegerField(verbose_name='Время приготовления')
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
-    slug = AutoSlugField(populate_from='title', unique_with=['author__username', 'pub_date__month'], verbose_name="slug")
+    slug = AutoSlugField(populate_from='title', unique_with=['author__username', 'pub_date__month'],
+                         verbose_name="slug")
 
     def __str__(self):
         return self.title
-
 
     def get_absolute_url(self):
         return reverse('recipe', kwargs={'recipe_slug': self.slug})

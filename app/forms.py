@@ -13,7 +13,6 @@ class RecipeForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'class': 'form__input'}),
             'time': forms.TextInput(attrs={'class': 'form__input', 'min': '0'}),
             'text': forms.Textarea(attrs={'class': 'form__textarea', 'rows': '8'}),
-            'image': forms.FileInput(attrs={'class': 'form__file'})
+            'image': forms.FileInput(attrs={'class': 'form__file-button'})
         }
-
 
