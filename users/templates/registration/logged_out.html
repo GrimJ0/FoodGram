@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Выход из сайта{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/pages/form.css' %}">
+    <link rel="stylesheet" href="{% static '/blocks/main/center-block.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="custom-center-block">
+        <p class="custom-text-block">Вы вышли из своей учётной записи. Ждём вас снова!</p>
+    </div>
+{% endblock %}

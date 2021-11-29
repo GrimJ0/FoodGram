@@ -3,7 +3,9 @@ from .models import Recipe, Ingredient, RecipeIngredient
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ("slug", "author", "title", "tag", "text", "image", "time")
+    list_display = ("slug", "author", "title", "tag", "text", "image", "time", "pub_date")
+    list_display_links = ("slug", "author")
+    list_filter = ("author", "tag", "time", "pub_date")
     filter_horizontal = ("ingredient",)
     search_fields = ("title",)
     empty_value_display = "-пусто-"
@@ -11,12 +13,14 @@ class RecipeAdmin(admin.ModelAdmin):
 
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "unit_measurement")
+    list_display_links = ("id", "title")
     search_fields = ("title",)
     empty_value_display = "-пусто-"
 
 
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ("pk", "ingredient", "ing_count")
+    list_display = ("id", "ingredient", "ing_count")
+    list_display_links = ("id", "ingredient")
     search_fields = ("title",)
     empty_value_display = "-пусто-"
 

@@ -38,12 +38,11 @@ class User(AbstractUser):
         ('user', 'user'),
         ('admin', 'admin'),
     )
-    username = models.CharField(max_length=200, unique=True)
-    first_name = models.CharField(_('name'), max_length=30, blank=True)
-    last_name = models.CharField(_('surname'), max_length=30, blank=True)
+    username = models.CharField(max_length=200, unique=True, verbose_name='Имя пользователя')
+    first_name = models.CharField(max_length=30, verbose_name='Имя')
+    last_name = models.CharField(max_length=30, verbose_name='Фамилия')
     date_joined = models.DateTimeField(_('registered'), auto_now_add=True)
-    email = models.EmailField(verbose_name=_('email address'), unique=True)
-    is_active = models.BooleanField(_('is_active'), default=True)
+    email = models.EmailField(unique=True, verbose_name='Адрес электронной почты')
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
 
     objects = MyUserManager()
