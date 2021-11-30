@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.views import View
 from django.views.generic import CreateView, ListView, DetailView
 from django.http import JsonResponse
@@ -10,15 +10,19 @@ from .services import add_ingredient, add_tag
 
 
 class IndexView(ListView):
-    paginate_by = 2
     model = Recipe
+    paginate_by = 2
     template_name = 'index.html'
+    context_object_name = 'recipes'
+
 
 
 class RecipeDetail(DetailView):
     model = Recipe
     slug_url_kwarg = 'recipe_slug'
     template_name = 'recipe.html'
+    context_object_name = 'recipe'
+    allow_empty = False
 
 
 class NewRecipeView(CreateView):
@@ -40,6 +44,24 @@ class NewRecipeView(CreateView):
 
 
 
+class AuthorRecipeList(ListView):
+    model = Recipe
+    paginate_by = 1
+    template_name = 'author_recipe.html'
+    context_object_name = 'recipes'
+    allow_empty = False
+
+
+    def get_queryset(self):
+        username = self.kwargs['username']
+        return Recipe.objects.filter(author__username=username)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['full_name'] = context['recipes'][0].author.get_full_name
+        return context
+
+
 class IngredientApi(View):
 
     def get(self, request):
@@ -48,4 +70,3 @@ class IngredientApi(View):
             Ingredient.objects.filter(title__startswith=ingredient).annotate(dimension=F('unit_measurement')).values(
                 'title', 'dimension'))
         return JsonResponse(data, safe=False)
-

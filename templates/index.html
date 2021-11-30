@@ -25,8 +25,8 @@
         </div>
 
         <div class="card-list">
-            {% for recipe in page_obj %}
-                    <div class="card" data-id="recipe_{{ recipe.id }}">
+            {% for recipe in recipes %}
+                    <div class="card" data-id="{{ recipe.id }}">
                             <a href="{% url 'recipe' recipe.slug %}" class="link" target="_blank">
                                 {% thumbnail recipe.image "500x500" crop="center" upscale=True as im %}
                                         <img src="{{ im.url }}" alt="фото рецепта" class="card__image">
@@ -41,7 +41,7 @@
                             </ul>
                             <div class="card__items card__items_column">
                                 <p class="card__text"><span class="icon-time"></span> {{ recipe.time }} мин.</p>
-                                <p class="card__text"><span class="icon-user"></span> <a href="#" style="color: black">{{ recipe.author }}</a></p>
+                                <p class="card__text"><span class="icon-user"></span> <a href="{% url 'author_recipe' recipe.author.username %}" style="color: black">{{ recipe.author.get_full_name }}</a></p>
                             </div>
                         </div>
                         <div class="card__footer">

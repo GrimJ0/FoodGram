@@ -5,6 +5,7 @@ from .views import (
                     RecipeDetail,
                     NewRecipeView,
                     IngredientApi,
+                    AuthorRecipeList,
                      )
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     path("new/", NewRecipeView.as_view(), name="new_recipe"),
     path("ingredients/", IngredientApi.as_view()),
     path("<slug:recipe_slug>/", RecipeDetail.as_view(), name="recipe"),
+    path("recipe/<str:username>/", AuthorRecipeList.as_view(), name='author_recipe')
 ]

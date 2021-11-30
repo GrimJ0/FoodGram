@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Рецепты автора{% endblock %}
+{% load static %}
+{% load thumbnail %}
+{% load app_filters %}
+
+{% block content %}
+
+<div class="main__header">
+            <h1 class="main__title">{{ full_name }}</h1>
+            <ul class="tags">
+                <li class="tags__item">
+                    <a id="breakfast" class="tags__checkbox tags__checkbox_style_orange tags__checkbox_active" href="#"></a>
+                    <span class="tags__label">Завтрак</span>
+                </li>
+                <li class="tags__item">
+                    <a id="lunch" class="tags__checkbox tags__checkbox_style_green tags__checkbox_active" href="#"></a>
+                    <span for="lunch" class="tags__label">Обед</span>
+                </li>
+                <li class="tags__item">
+                    <a id="dinner" class="tags__checkbox tags__checkbox_style_purple tags__checkbox_active" href="#"></a>
+                    <label for="dinner" class="tags__label">Ужин</label>
+                </li>
+            </ul>
+
+        </div>
+{#        <p style="padding: 0 0 2em 0;"><a class="button button_style_light-blue" href="#">Подписаться на автора</a></p>#}
+        <div class="author-subscribe" data-author="323">
+            <p style="padding: 0 0 2em 0;"><button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>Подписаться на автора</button></p>
+        </div>
+        <div class="card-list" >
+        {% for recipe in recipes %}
+            <div class="card" data-id="{{ recipe.id }}">
+                <a href="{% url 'recipe' recipe.slug %}" class="link" target="_blank">
+                    {% thumbnail recipe.image "500x500" crop="center" upscale=True as im %}
+                            <img src="{{ im.url }}" alt="фото рецепта" class="card__image">
+                    {% endthumbnail %}
+                </a>
+                <div class="card__body">
+                    <a class="card__title link" href="{% url 'recipe' recipe.slug %}" target="_blank">{{ recipe.title }}</a>
+                    <ul class="card__items">
+                        {% for tag in recipe.tag|get_recipe_tags %}
+                            <li class="card__item">{{ tag|safe }}</li>
+                        {% endfor %}
+                    </ul>
+                    <div class="card__items card__items_column">
+                        <p class="card__text"><span class="icon-time"></span> {{ recipe.time }} мин.</p>
+                        <p class="card__text"><span class="icon-user"></span>
+                            <a href="{% url 'recipe' recipe.slug %}" target="_blank" style="color: black">{{ full_name }}</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="card__footer">
+                    <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span>Добавить в покупки</button>
+                    <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+{% if is_paginated %}
+    {% include "skeleton/paginator.html" %}
+{% endif %}
+
+{% endblock %}
