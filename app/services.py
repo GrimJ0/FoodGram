@@ -1,24 +1,22 @@
 from app.models import RecipeIngredient, Ingredient
-
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def add_ingredient(method):
     ingredients = []
-    i = 1
+    if 'nameIngredient' in method:
+        try:
+            name = method.getlist('nameIngredient')
+            value = method.getlist('valueIngredient')
 
-    while True:
-        if f'nameIngredient_{i}' in method:
-            title = method.get(f'nameIngredient_{i}')
-            value = method.get(f'valueIngredient_{i}')
-            ingredient = Ingredient.objects.get(title=title)
-            new_ingredient, _ = RecipeIngredient.objects.get_or_create(
-                                defaults={'ingredient': ingredient, 'ing_count': value},
-                                ingredient=ingredient, ing_count=value, )
-            ingredients.append(new_ingredient)
-            i += 1
-        else:
-            break
-
+            for name, value in zip(name, value):
+                ingredient = Ingredient.objects.get(title=name)
+                new_ingredient, _ = RecipeIngredient.objects.get_or_create(
+                                    defaults={'ingredient': ingredient, 'ing_count': value},
+                                    ingredient=ingredient, ing_count=value, )
+                ingredients.append(new_ingredient)
+        except ObjectDoesNotExist:
+            return []
     return ingredients
 
 def add_tag(method):

@@ -15,7 +15,6 @@ __pycache__/
 *.sublime-project
 *.sublime-workspace
 
-static/
 media/recipes/
 media/
 

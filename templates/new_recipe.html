@@ -1,13 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Создание нового рецепта{% endblock %}
+{% block title %}
+    {% if edit %}Редактирование рецепта{% else %}Создание рецепта{% endif %}
+{% endblock %}
 {% load static %}
 {% block css %}
     <link rel="stylesheet" href="{% static '/pages/form.css' %}">
 {% endblock %}
-
 {% block content %}
     <div class="main__header">
-        <h1 class="main__title">Создание рецепта</h1>
+        <h1 class="main__title">{% if edit %}Редактирование рецепта{% else %}Создание рецепта{% endif %}</h1>
     </div>
     <div class="form-container">
         <form class="form" method="post" enctype="multipart/form-data">
@@ -24,15 +25,15 @@
                 <div class="form__field-group">
                     <div class="tags">
                         <div class="tags__item">
-                            <input type="checkbox" name="BREAKFAST" id="id_breakfast" class="tags__checkbox tags__checkbox_style_orange">
+                            <input type="checkbox" name="BREAKFAST" id="id_breakfast" class="tags__checkbox tags__checkbox_style_orange" {% if 'BREAKFAST' in tag %}checked="checked"{% endif %}>
                             <label for="id_breakfast" class="tags__label">Завтрак</label>
                         </div>
                         <div class="tags__item">
-                            <input type="checkbox" name="LUNCH" id="id_lunch" class="tags__checkbox tags__checkbox_style_green">
+                            <input type="checkbox" name="LUNCH" id="id_lunch" class="tags__checkbox tags__checkbox_style_green" {% if 'LUNCH' in tag %}checked="checked"{% endif %}>
                             <label for="id_lunch" class="tags__label">Обед</label>
                         </div>
                         <div class="tags__item">
-                            <input type="checkbox" name="DINNER" id="id_dinner" class="tags__checkbox tags__checkbox_style_purple">
+                            <input type="checkbox" name="DINNER" id="id_dinner" class="tags__checkbox tags__checkbox_style_purple" {% if 'DINNER' in tag %}checked="checked"{% endif %}>
                             <label for="id_dinner" class="tags__label">Ужин</label>
                         </div>
                     </div>
@@ -51,6 +52,13 @@
                         <label for="cantidad" class="form__label" id="cantidadVal">шт.</label>
                     </div>
                     <div class="form__field-group-ingredientes-container">
+                        {% for ing in ingredient %}
+                            <div class="form__field-item-ingredient" id="{{ ing.ingredient.id }}"><span> {{ ing }}</span> <span class="form__field-item-delete"></span>
+                                <input id="nameIngredient" name="nameIngredient" type="hidden" value="{{ ing.ingredient.title }}">
+                                <input id="valueIngredient" name="valueIngredient" type="hidden" value="{{ ing.ing_count }}">
+                                <input id="unitsIngredient" name="unitsIngredient" type="hidden" value="{{ ing.ingredient.unit_measurement }}">
+                            </div>
+                        {% endfor %}
                     </div>
                     <span class="form__ingredient-link" id="addIng">Добавить ингредиент</span>
                     <span class="form__error">{{ form.ingredient.errors }}</span>
@@ -79,7 +87,7 @@
                 </div>
             </div>
             <div class="form__footer">
-                <button class="button button_style_blue">Создать рецепт</button>
+                <button class="button button_style_blue">{% if edit %}Изменить рецепт{% else %}Создать рецепт{% endif %}</button>
             </div>
         </form>
     </div>

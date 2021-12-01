@@ -1,6 +1,5 @@
-from django.shortcuts import render
 from django.views import View
-from django.views.generic import CreateView, ListView, DetailView
+from django.views.generic import CreateView, ListView, DetailView, UpdateView
 from django.http import JsonResponse
 from django.db.models import F
 
@@ -14,7 +13,6 @@ class IndexView(ListView):
     paginate_by = 2
     template_name = 'index.html'
     context_object_name = 'recipes'
-
 
 
 class RecipeDetail(DetailView):
@@ -33,15 +31,46 @@ class NewRecipeView(CreateView):
     def form_valid(self, form):
         ingredients = add_ingredient(self.request.POST)
         tags = add_tag(self.request.POST)
+        if not tags:
+            return self.render_to_response(self.get_context_data(form=form))
         if not ingredients:
-            return render(self.request, 'new_recipe.html', {'form': form})
+            return self.render_to_response(self.get_context_data(form=form))
+        self.recipe = form.save(commit=False)
+        self.recipe.author = self.request.user
+        self.recipe.tag = tags
+        self.recipe.save()
+        self.recipe.ingredient.clear()
+        self.recipe.ingredient.add(*ingredients)
+        return super().form_valid(form)
+
+
+class EditRecipeView(UpdateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = 'new_recipe.html'
+    slug_url_kwarg = 'recipe_slug'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['ingredient'] = context['recipe'].ingredient.all()
+        context['tag'] = context['recipe'].tag
+        context['edit'] = True
+        return context
+
+    def form_valid(self, form):
+        ingredients = add_ingredient(self.request.POST)
+        tags = add_tag(self.request.POST)
+        if not tags:
+            return self.render_to_response(self.get_context_data(form=form))
+        if not ingredients:
+            return self.render_to_response(self.get_context_data(form=form))
         self.recipe = form.save(commit=False)
         self.recipe.author = self.request.user
         self.recipe.tag = tags
         self.recipe.save()
         self.recipe.ingredient.add(*ingredients)
+        self.recipe.ingredient.clear()
         return super().form_valid(form)
-
 
 
 class AuthorRecipeList(ListView):
@@ -50,7 +79,6 @@ class AuthorRecipeList(ListView):
     template_name = 'author_recipe.html'
     context_object_name = 'recipes'
     allow_empty = False
-
 
     def get_queryset(self):
         username = self.kwargs['username']
