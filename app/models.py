@@ -10,7 +10,7 @@ User = settings.AUTH_USER_MODEL
 
 class Ingredient(models.Model):
     title = models.CharField(max_length=50, verbose_name='Название ингредиента')
-    unit_measurement = models.CharField(max_length=20, verbose_name='Единицы измерения')
+    dimension = models.CharField(max_length=20, verbose_name='Единицы измерения')
 
     def __str__(self):
         return f"{self.title}"
@@ -26,7 +26,7 @@ class RecipeIngredient(models.Model):
     ing_count = models.IntegerField(verbose_name='Количество')
 
     def __str__(self):
-        return f"{self.ingredient.title} {self.ing_count}{self.ingredient.unit_measurement}"
+        return f"{self.ingredient.title} {self.ing_count}{self.ingredient.dimension}"
 
     class Meta:
         verbose_name = 'Ингредиент для рецепта'

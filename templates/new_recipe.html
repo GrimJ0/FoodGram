@@ -21,7 +21,7 @@
                 </div>
             </div>
             <div class="form__group">
-                <p class="form__label">{{ form.tag.label }}</p>
+                <p class="form__label">{{ tag_label }}</p>
                 <div class="form__field-group">
                     <div class="tags">
                         <div class="tags__item">
@@ -56,7 +56,7 @@
                             <div class="form__field-item-ingredient" id="{{ ing.ingredient.id }}"><span> {{ ing }}</span> <span class="form__field-item-delete"></span>
                                 <input id="nameIngredient" name="nameIngredient" type="hidden" value="{{ ing.ingredient.title }}">
                                 <input id="valueIngredient" name="valueIngredient" type="hidden" value="{{ ing.ing_count }}">
-                                <input id="unitsIngredient" name="unitsIngredient" type="hidden" value="{{ ing.ingredient.unit_measurement }}">
+                                <input id="unitsIngredient" name="unitsIngredient" type="hidden" value="{{ ing.ingredient.dimension }}">
                             </div>
                         {% endfor %}
                     </div>

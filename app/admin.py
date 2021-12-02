@@ -12,7 +12,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "unit_measurement")
+    list_display = ("id", "title", "dimension")
     list_display_links = ("id", "title")
     search_fields = ("title",)
     empty_value_display = "-пусто-"

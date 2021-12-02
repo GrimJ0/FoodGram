@@ -1,11 +1,10 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import CreateView, ListView, DetailView, UpdateView
 from django.http import JsonResponse
-from django.db.models import F
-
 from .forms import RecipeForm
 from .models import Recipe, Ingredient
-from .services import add_ingredient, add_tag
+from .utils import DataMixin
 
 
 class IndexView(ListView):
@@ -23,28 +22,16 @@ class RecipeDetail(DetailView):
     allow_empty = False
 
 
-class NewRecipeView(CreateView):
+class NewRecipeView(LoginRequiredMixin, DataMixin, CreateView):
     form_class = RecipeForm
     template_name = 'new_recipe.html'
     slug_url_kwarg = 'recipe_slug'
 
     def form_valid(self, form):
-        ingredients = add_ingredient(self.request.POST)
-        tags = add_tag(self.request.POST)
-        if not tags:
-            return self.render_to_response(self.get_context_data(form=form))
-        if not ingredients:
-            return self.render_to_response(self.get_context_data(form=form))
-        self.recipe = form.save(commit=False)
-        self.recipe.author = self.request.user
-        self.recipe.tag = tags
-        self.recipe.save()
-        self.recipe.ingredient.clear()
-        self.recipe.ingredient.add(*ingredients)
-        return super().form_valid(form)
+        return super().user_form_valid(self.request, self.get_context_data, form)
 
 
-class EditRecipeView(UpdateView):
+class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
     model = Recipe
     form_class = RecipeForm
     template_name = 'new_recipe.html'
@@ -53,24 +40,13 @@ class EditRecipeView(UpdateView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['ingredient'] = context['recipe'].ingredient.all()
+        context['tag_label'] = 'Теги'
         context['tag'] = context['recipe'].tag
         context['edit'] = True
         return context
 
     def form_valid(self, form):
-        ingredients = add_ingredient(self.request.POST)
-        tags = add_tag(self.request.POST)
-        if not tags:
-            return self.render_to_response(self.get_context_data(form=form))
-        if not ingredients:
-            return self.render_to_response(self.get_context_data(form=form))
-        self.recipe = form.save(commit=False)
-        self.recipe.author = self.request.user
-        self.recipe.tag = tags
-        self.recipe.save()
-        self.recipe.ingredient.add(*ingredients)
-        self.recipe.ingredient.clear()
-        return super().form_valid(form)
+        return super().user_form_valid(self.request, self.get_context_data, form)
 
 
 class AuthorRecipeList(ListView):
@@ -86,7 +62,7 @@ class AuthorRecipeList(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['full_name'] = context['recipes'][0].author.get_full_name
+        context['full_name'] = context['recipes'].first().author.get_full_name
         return context
 
 
@@ -95,6 +71,5 @@ class IngredientApi(View):
     def get(self, request):
         ingredient = request.GET['query']
         data = list(
-            Ingredient.objects.filter(title__startswith=ingredient).annotate(dimension=F('unit_measurement')).values(
-                'title', 'dimension'))
+            Ingredient.objects.filter(title__startswith=ingredient).values('title', 'dimension'))
         return JsonResponse(data, safe=False)

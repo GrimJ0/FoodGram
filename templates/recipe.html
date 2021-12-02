@@ -40,7 +40,7 @@
                     <h3 class="single-card__section-title">Ингридиенты:</h3>
                     <div class="single-card__items single-card__items_column">
                         {% for ing in recipe.ingredient.all %}
-                            <p class=" single-card__section-item">{{ ing.ingredient.title }} - {{ ing.ing_count }} {{ ing.ingredient.unit_measurement }}.</p>
+                            <p class=" single-card__section-item">{{ ing.ingredient.title }} - {{ ing.ing_count }} {{ ing.ingredient.dimension }}.</p>
                         {% endfor %}
                     </div>
                 </div>
