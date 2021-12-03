@@ -1,17 +1,23 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
 from django.views import View
 from django.views.generic import CreateView, ListView, DetailView, UpdateView
 from django.http import JsonResponse
+
+from users.models import User
 from .forms import RecipeForm
-from .models import Recipe, Ingredient
+from .models import Recipe, Ingredient, Subscription
 from .utils import DataMixin
 
 
 class IndexView(ListView):
     model = Recipe
-    paginate_by = 2
+    paginate_by = 6
     template_name = 'index.html'
     context_object_name = 'recipes'
+
+    def get_queryset(self):
+        return Recipe.objects.select_related('author').all()
 
 
 class RecipeDetail(DetailView):
@@ -20,6 +26,14 @@ class RecipeDetail(DetailView):
     template_name = 'recipe.html'
     context_object_name = 'recipe'
     allow_empty = False
+
+    def get_queryset(self):
+        return Recipe.objects.select_related('author').all()
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['ingredients'] = context['recipe'].ingredient.prefetch_related('ingredient').all()
+        return context
 
 
 class NewRecipeView(LoginRequiredMixin, DataMixin, CreateView):
@@ -51,20 +65,32 @@ class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
 
 class AuthorRecipeList(ListView):
     model = Recipe
-    paginate_by = 1
+    paginate_by = 6
     template_name = 'author_recipe.html'
     context_object_name = 'recipes'
     allow_empty = False
 
     def get_queryset(self):
         username = self.kwargs['username']
-        return Recipe.objects.filter(author__username=username)
+        return Recipe.objects.filter(author__username=username).select_related('author')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['full_name'] = context['recipes'].first().author.get_full_name
         return context
 
+
+class SubscriptionList(ListView):
+    model = Subscription
+    paginate_by = 6
+    template_name = 'my_follow.html'
+    context_object_name = 'authors'
+
+    def get_queryset(self):
+        authors = User.objects.filter(
+            following__user=self.request.user).prefetch_related('recipes').annotate(
+            recipe_count=Count('recipes'))
+        return authors
 
 class IngredientApi(View):
 

@@ -12,12 +12,13 @@ def add_ingredient(method):
             for name, value in zip(name, value):
                 ingredient = Ingredient.objects.get(title=name)
                 new_ingredient, _ = RecipeIngredient.objects.get_or_create(
-                                    defaults={'ingredient': ingredient, 'ing_count': value},
-                                    ingredient=ingredient, ing_count=value, )
+                    defaults={'ingredient': ingredient, 'ing_count': value},
+                    ingredient=ingredient, ing_count=value, )
                 ingredients.append(new_ingredient)
         except ObjectDoesNotExist:
             return []
     return ingredients
+
 
 def add_tag(method):
     tags = []

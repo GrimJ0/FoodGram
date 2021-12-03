@@ -4,7 +4,6 @@ from django.urls import reverse
 from multiselectfield import MultiSelectField
 from autoslug import AutoSlugField
 
-
 User = settings.AUTH_USER_MODEL
 
 
@@ -26,7 +25,7 @@ class RecipeIngredient(models.Model):
     ing_count = models.IntegerField(verbose_name='Количество')
 
     def __str__(self):
-        return f"{self.ingredient.title} {self.ing_count}{self.ingredient.dimension}"
+        return f"{self.ingredient.title} - {self.ing_count} {self.ingredient.dimension}"
 
     class Meta:
         verbose_name = 'Ингредиент для рецепта'
@@ -66,3 +65,13 @@ class Recipe(models.Model):
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         ordering = ('-pub_date',)
+
+
+class Subscription(models.Model):
+    """Модель подписок"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follower", verbose_name='Подписчик')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following", verbose_name='Автор')
+
+    class Meta:
+        verbose_name = 'Подписчик'
+        verbose_name_plural = 'Подписчики'
