@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .models import Subscription
 from .views import (
     IndexView,
     RecipeDetail,
@@ -8,14 +9,17 @@ from .views import (
     IngredientApi,
     AuthorRecipeList,
     SubscriptionList,
+    AddSubscriptionApi,
+    RemoveSubscriptionApi,
 )
 
 urlpatterns = [
     path("", IndexView.as_view(), name="index"),
     path("new/", NewRecipeView.as_view(), name="new_recipe"),
-    path("ingredients/", IngredientApi.as_view()),
     path("subscriptions/", SubscriptionList.as_view(), name='subscriptions'),
-
+    path("add_subscriptions/", AddSubscriptionApi.as_view(), name='add_subscriptions'),
+    path("remove_subscriptions/<int:id>/", RemoveSubscriptionApi.as_view(), name='remove_subscriptions'),
+    path("ingredients/", IngredientApi.as_view()),
     path("<slug:recipe_slug>/", RecipeDetail.as_view(), name="recipe"),
     path("<slug:recipe_slug>/edit", EditRecipeView.as_view(), name="edit_recipe"),
     path("recipe/<str:username>/", AuthorRecipeList.as_view(), name='author_recipe'),

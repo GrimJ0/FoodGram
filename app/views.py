@@ -1,12 +1,15 @@
+import json
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, ListView, DetailView, UpdateView
 from django.http import JsonResponse
 
-from users.models import User
 from .forms import RecipeForm
-from .models import Recipe, Ingredient, Subscription
+from .models import Recipe, Ingredient, Subscription, User
 from .utils import DataMixin
 
 
@@ -76,23 +79,53 @@ class AuthorRecipeList(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['author'] = context['recipes'].first().author
         context['full_name'] = context['recipes'].first().author.get_full_name
         return context
 
 
-class SubscriptionList(ListView):
+class SubscriptionList(LoginRequiredMixin, ListView):
     model = Subscription
     paginate_by = 6
     template_name = 'my_follow.html'
     context_object_name = 'authors'
 
     def get_queryset(self):
-        authors = User.objects.filter(
+        return User.objects.filter(
             following__user=self.request.user).prefetch_related('recipes').annotate(
-            recipe_count=Count('recipes'))
-        return authors
+            recipe_count=Count('recipes')).order_by('username')
 
-class IngredientApi(View):
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AddSubscriptionApi(LoginRequiredMixin, View):
+    def post(self, request):
+        user = request.user
+        author_id = json.loads(request.body).get('id')
+        author = User.objects.filter(id=author_id).first()
+        follow = Subscription.objects.filter(user=user, author=author).exists()
+        if user != author and not follow:
+            _, subscribed = Subscription.objects.get_or_create(user=request.user, author=author)
+            data = {"success": subscribed}
+        else:
+            data = {"success": False}
+        return JsonResponse(data, safe=False)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RemoveSubscriptionApi(LoginRequiredMixin, View):
+    def delete(self, request, id):
+        user = request.user
+        author = User.objects.filter(id=id).first()
+        follow = Subscription.objects.filter(user=user, author=author)
+        if user != author and follow.exists():
+            removed = follow.delete()
+            data = {"success": removed}
+        else:
+            data = {"success": False}
+        return JsonResponse(data, safe=False)
+
+
+class IngredientApi(LoginRequiredMixin, View):
 
     def get(self, request):
         ingredient = request.GET['query']

@@ -9,12 +9,13 @@
 {% endblock %}
 
 {% block content %}
+        {% csrf_token %}
     <div class="main__header">
         <h1 class="main__title">Мои подписки</h1>
     </div>
     <div class="card-list">
         {% for author in authors %}
-        <div class="card-user" data-author="700">
+        <div class="card-user" data-author="{{ author.id }}">
             <div class="card-user__header">
                 <h2 class="card-user__title">{{ author.get_full_name }}</h2>
             </div>
