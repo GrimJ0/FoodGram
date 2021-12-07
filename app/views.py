@@ -9,7 +9,7 @@ from django.views.generic import CreateView, ListView, DetailView, UpdateView
 from django.http import JsonResponse
 
 from .forms import RecipeForm
-from .models import Recipe, Ingredient, Subscription, User
+from .models import Recipe, Ingredient, Subscription, User, Favorite
 from .utils import DataMixin
 
 
@@ -66,6 +66,15 @@ class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
         return super().user_form_valid(self.request, self.get_context_data, form)
 
 
+class IngredientApi(LoginRequiredMixin, View):
+
+    @staticmethod
+    def get(request):
+        ingredient = request.GET['query']
+        data = list(Ingredient.objects.filter(title__startswith=ingredient).values('title', 'dimension'))
+        return JsonResponse(data, safe=False)
+
+
 class AuthorRecipeList(ListView):
     model = Recipe
     paginate_by = 6
@@ -98,7 +107,9 @@ class SubscriptionList(LoginRequiredMixin, ListView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AddSubscriptionApi(LoginRequiredMixin, View):
-    def post(self, request):
+
+    @staticmethod
+    def post(request):
         user = request.user
         author_id = json.loads(request.body).get('id')
         author = User.objects.filter(id=author_id).first()
@@ -113,9 +124,11 @@ class AddSubscriptionApi(LoginRequiredMixin, View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RemoveSubscriptionApi(LoginRequiredMixin, View):
-    def delete(self, request, id):
+
+    @staticmethod
+    def delete(request, author_id):
         user = request.user
-        author = User.objects.filter(id=id).first()
+        author = User.objects.filter(id=author_id).first()
         follow = Subscription.objects.filter(user=user, author=author)
         if user != author and follow.exists():
             removed = follow.delete()
@@ -125,10 +138,11 @@ class RemoveSubscriptionApi(LoginRequiredMixin, View):
         return JsonResponse(data, safe=False)
 
 
-class IngredientApi(LoginRequiredMixin, View):
+class FavoriteList(ListView):
+    model = Favorite
+    paginate_by = 6
+    template_name = 'favorite.html'
+    context_object_name = 'favorites'
 
-    def get(self, request):
-        ingredient = request.GET['query']
-        data = list(
-            Ingredient.objects.filter(title__startswith=ingredient).values('title', 'dimension'))
-        return JsonResponse(data, safe=False)
+    def get_queryset(self):
+        return Recipe.objects.filter(recipes__user=self.request.user).prefetch_related('recipes')

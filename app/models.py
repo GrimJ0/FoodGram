@@ -75,3 +75,14 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = 'Подписчик'
         verbose_name_plural = 'Подписчики'
+
+
+class Favorite(models.Model):
+    """Модель избранных"""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follower", verbose_name='Подписчик')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="recipes", verbose_name='Рецепт')
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранные'

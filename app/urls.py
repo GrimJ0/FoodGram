@@ -1,6 +1,5 @@
 from django.urls import path
 
-from .models import Subscription
 from .views import (
     IndexView,
     RecipeDetail,
@@ -11,6 +10,7 @@ from .views import (
     SubscriptionList,
     AddSubscriptionApi,
     RemoveSubscriptionApi,
+    FavoriteList,
 )
 
 urlpatterns = [
@@ -19,6 +19,7 @@ urlpatterns = [
     path("subscriptions/", SubscriptionList.as_view(), name='subscriptions'),
     path("add_subscriptions/", AddSubscriptionApi.as_view(), name='add_subscriptions'),
     path("remove_subscriptions/<int:id>/", RemoveSubscriptionApi.as_view(), name='remove_subscriptions'),
+    path("favorites/", FavoriteList.as_view(), name='favorites'),
     path("ingredients/", IngredientApi.as_view()),
     path("<slug:recipe_slug>/", RecipeDetail.as_view(), name="recipe"),
     path("<slug:recipe_slug>/edit", EditRecipeView.as_view(), name="edit_recipe"),
