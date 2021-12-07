@@ -36,6 +36,8 @@ class RecipeDetail(DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['ingredients'] = context['recipe'].ingredient.prefetch_related('ingredient').all()
+        context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
+        context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
         return context
 
 
@@ -89,6 +91,8 @@ class AuthorRecipeList(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['author'] = context['recipes'].first().author
+        context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
+        context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
         context['full_name'] = context['recipes'].first().author.get_full_name
         return context
 
@@ -126,9 +130,9 @@ class AddSubscriptionApi(LoginRequiredMixin, View):
 class RemoveSubscriptionApi(LoginRequiredMixin, View):
 
     @staticmethod
-    def delete(request, author_id):
+    def delete(request, id):
         user = request.user
-        author = User.objects.filter(id=author_id).first()
+        author = User.objects.filter(id=id).first()
         follow = Subscription.objects.filter(user=user, author=author)
         if user != author and follow.exists():
             removed = follow.delete()
@@ -146,3 +150,36 @@ class FavoriteList(ListView):
 
     def get_queryset(self):
         return Recipe.objects.filter(recipes__user=self.request.user).prefetch_related('recipes')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AddFavoriteApi(View):
+
+    @staticmethod
+    def post(request):
+        user = request.user
+        recipe_id = json.loads(request.body).get('id')
+        recipe = Recipe.objects.filter(id=recipe_id).first()
+        favorite = Favorite.objects.filter(user=user, recipe=recipe).exists()
+        if not favorite:
+            _, favorited = Favorite.objects.get_or_create(user=user, recipe=recipe)
+            data = {"success": favorited}
+        else:
+            data = {"success": False}
+        return JsonResponse(data, safe=False)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RemoveFavoriteApi(LoginRequiredMixin, View):
+
+    @staticmethod
+    def delete(request, id):
+        user = request.user
+        recipe = Recipe.objects.get(id=id)
+        favorite = Favorite.objects.filter(user=user, recipe=recipe)
+        if favorite.exists():
+            removed = favorite.delete()
+            data = {"success": removed}
+        else:
+            data = {"success": False}
+        return JsonResponse(data, safe=False)
