@@ -2,14 +2,17 @@ import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
+from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import CreateView, ListView, DetailView, UpdateView
-from django.http import JsonResponse
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
 
 from .forms import RecipeForm
-from .models import Recipe, Ingredient, Subscription, User, Favorite
+from .models import Favorite, Ingredient, Recipe, Subscription, User
 from .utils import DataMixin
 
 
@@ -68,10 +71,24 @@ class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
         return super().user_form_valid(self.request, self.get_context_data, form)
 
 
+class RemoveRecipeView(LoginRequiredMixin, DeleteView):
+    model = Recipe
+    template_name = 'remove_recipe.html'
+    success_url = reverse_lazy('index')
+    slug_url_kwarg = 'recipe_slug'
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if request.user.id != self.object.author_id:
+            return redirect(self.get_success_url())
+        return super().delete(self.object)
+
+
+
 class IngredientApi(LoginRequiredMixin, View):
 
     @staticmethod
-    def get(request):
+    def get(request, *args, **kwargs):
         ingredient = request.GET['query']
         data = list(Ingredient.objects.filter(title__startswith=ingredient).values('title', 'dimension'))
         return JsonResponse(data, safe=False)
@@ -113,10 +130,10 @@ class SubscriptionList(LoginRequiredMixin, ListView):
 class AddSubscriptionApi(LoginRequiredMixin, View):
 
     @staticmethod
-    def post(request):
+    def post(request, *args, **kwargs):
         user = request.user
         author_id = json.loads(request.body).get('id')
-        author = User.objects.filter(id=author_id).first()
+        author = User.objects.get(id=author_id)
         follow = Subscription.objects.filter(user=user, author=author).exists()
         if user != author and not follow:
             _, subscribed = Subscription.objects.get_or_create(user=request.user, author=author)
@@ -130,9 +147,9 @@ class AddSubscriptionApi(LoginRequiredMixin, View):
 class RemoveSubscriptionApi(LoginRequiredMixin, View):
 
     @staticmethod
-    def delete(request, id):
+    def delete(request, id, *args, **kwargs):
         user = request.user
-        author = User.objects.filter(id=id).first()
+        author = User.objects.get(id=id)
         follow = Subscription.objects.filter(user=user, author=author)
         if user != author and follow.exists():
             removed = follow.delete()
@@ -156,10 +173,10 @@ class FavoriteList(ListView):
 class AddFavoriteApi(View):
 
     @staticmethod
-    def post(request):
+    def post(request, *args, **kwargs):
         user = request.user
         recipe_id = json.loads(request.body).get('id')
-        recipe = Recipe.objects.filter(id=recipe_id).first()
+        recipe = Recipe.objects.get(id=recipe_id)
         favorite = Favorite.objects.filter(user=user, recipe=recipe).exists()
         if not favorite:
             _, favorited = Favorite.objects.get_or_create(user=user, recipe=recipe)
@@ -173,7 +190,7 @@ class AddFavoriteApi(View):
 class RemoveFavoriteApi(LoginRequiredMixin, View):
 
     @staticmethod
-    def delete(request, id):
+    def delete(request, id, *args, **kwargs):
         user = request.user
         recipe = Recipe.objects.get(id=id)
         favorite = Favorite.objects.filter(user=user, recipe=recipe)

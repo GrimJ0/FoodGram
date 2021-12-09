@@ -1,8 +1,8 @@
+from autoslug import AutoSlugField
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from multiselectfield import MultiSelectField
-from autoslug import AutoSlugField
 
 User = get_user_model()
 

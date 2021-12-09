@@ -1,19 +1,9 @@
 from django.urls import path
 
-from .views import (
-    IndexView,
-    RecipeDetail,
-    NewRecipeView,
-    EditRecipeView,
-    IngredientApi,
-    AuthorRecipeList,
-    SubscriptionList,
-    AddSubscriptionApi,
-    RemoveSubscriptionApi,
-    FavoriteList,
-    AddFavoriteApi,
-    RemoveFavoriteApi,
-)
+from .views import (AddFavoriteApi, AddSubscriptionApi, AuthorRecipeList,
+                    EditRecipeView, FavoriteList, IndexView, IngredientApi,
+                    NewRecipeView, RecipeDetail, RemoveFavoriteApi,
+                    RemoveRecipeView, RemoveSubscriptionApi, SubscriptionList)
 
 urlpatterns = [
     path("", IndexView.as_view(), name="index"),
@@ -26,6 +16,7 @@ urlpatterns = [
     path("remove_favorites/<int:id>/", RemoveFavoriteApi.as_view(), name='remove_favorites'),
     path("ingredients/", IngredientApi.as_view()),
     path("<slug:recipe_slug>/", RecipeDetail.as_view(), name="recipe"),
-    path("<slug:recipe_slug>/edit", EditRecipeView.as_view(), name="edit_recipe"),
+    path("<slug:recipe_slug>/edit/", EditRecipeView.as_view(), name="edit_recipe"),
+    path("<slug:recipe_slug>/remove_recipe/", RemoveRecipeView.as_view(), name="remove_recipe"),
     path("recipe/<str:username>/", AuthorRecipeList.as_view(), name='author_recipe'),
 ]

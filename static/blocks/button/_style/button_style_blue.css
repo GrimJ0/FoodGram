@@ -3,6 +3,13 @@
     color: #FFFFFF;
     transition: background 0.2s;
 }
+
+.button_style_red {
+    background: #ff0000;
+    color: #FFFFFF;
+    transition: background 0.2s;
+    min-width: 77px;
+}
 .button_style_blue:hover {
     background: #2845DF;
 }

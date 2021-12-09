@@ -8,6 +8,7 @@ class DataMixin(TemplateResponseMixin, ModelFormMixin):
     """
     Миксин для создания ингредиентов, тегов и добавления в рецепт
     """
+
     def user_form_valid(self, method, get_context_data, form):
         ingredients = add_ingredient(method.POST)
         tags = add_tag(method.POST)

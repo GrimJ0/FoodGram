@@ -1,5 +1,6 @@
-from app.models import RecipeIngredient, Ingredient
 from django.core.exceptions import ObjectDoesNotExist
+
+from app.models import Ingredient, RecipeIngredient
 
 
 def add_ingredient(method):

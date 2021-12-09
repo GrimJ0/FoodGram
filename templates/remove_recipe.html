@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Пароль изменён{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static '/pages/form.css' %}">
+    <link rel="stylesheet" href="{% static '/blocks/main/center-block.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="custom-center-block">
+        <form action="" method="post">{% csrf_token %}
+            <p class="custom-text-block">Удалить рецепт</p>
+            <p class="custom-text-block">Вы уверены, что хотите удалить рецепт "{{ recipe.title }}"?</p>
+            <div class="custom-button-block">
+                <a href="{% url 'recipe' recipe.slug %}" class="button_a button_style_blue">Нет</a>
+                <button style="margin-left: 2.5em" class="button button_style_red">Да</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

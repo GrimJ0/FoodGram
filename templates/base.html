@@ -14,12 +14,11 @@
     </head>
     <body>
         {% include 'skeleton/nav.html' %}
-        <main class="main container">
-            <div class="container">
-                {% block content %}
 
-                {% endblock content %}
-            </div>
+        <main class="main container">
+            {% block content %}
+
+            {% endblock content %}
         </main>
 
         {% include 'skeleton/footer.html' %}
