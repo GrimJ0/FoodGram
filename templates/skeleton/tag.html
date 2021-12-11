@@ -1,0 +1,34 @@
+{% load app_filters %}
+
+<ul class="tags">
+    <li class="tags__item">
+        {% if 'BREAKFAST' in request.GET|get_list:'tag' %}
+            <a id="breakfast" class="tags__checkbox tags__checkbox_style_orange tags__checkbox_active"
+               href="{% if link == 'index' or link == 'favorites' %}{% url link %}{% else %}{% url link author.username %}{% endif %}?{% filter_tag_url method=request.GET key='tag' value='BREAKFAST' %}"></a>
+        {% else %}
+            <a id="breakfast" class="tags__checkbox tags__checkbox_style_orange"
+               href="{% if link == 'index' or link == 'favorites' %}{% url link %}{% else %}{% url link author.username %}{% endif %}?tag=BREAKFAST&{% filter_tag_url method=request.GET key='tag' value='BREAKFAST' %}"></a>
+        {% endif %}
+        <span class="tags__label">Завтрак</span>
+    </li>
+    <li class="tags__item">
+        {% if 'LUNCH' in request.GET|get_list:'tag' %}
+            <a id="lunch" class="tags__checkbox tags__checkbox_style_green tags__checkbox_active"
+               href="{% if link == 'index' or link == 'favorites' %}{% url link %}{% else %}{% url link author.username %}{% endif %}?{% filter_tag_url method=request.GET key='tag' value='LUNCH' %}"></a>
+        {% else %}
+            <a id="lunch" class="tags__checkbox tags__checkbox_style_green"
+               href="{% if link == 'index' or link == 'favorites' %}{% url link %}{% else %}{% url link author.username %}{% endif %}?tag=LUNCH&{% filter_tag_url method=request.GET key='tag' value='LUNCH' %}"></a>
+        {% endif %}
+        <span for="lunch" class="tags__label">Обед</span>
+    </li>
+    <li class="tags__item">
+        {% if 'DINNER' in request.GET|get_list:'tag' %}
+            <a id="dinner" class="tags__checkbox tags__checkbox_style_purple tags__checkbox_active"
+               href="{% if link == 'index' or link == 'favorites' %}{% url link %}{% else %}{% url link author.username %}{% endif %}?{% filter_tag_url method=request.GET key='tag' value='DINNER' %}"></a>
+        {% else %}
+            <a id="dinner" class="tags__checkbox tags__checkbox_style_purple"
+               href="{% if link == 'index' or link == 'favorites' %}{% url link %}{% else %}{% url link author.username %}{% endif %}?tag=DINNER&{% filter_tag_url method=request.GET key='tag' value='DINNER' %}"></a>
+        {% endif %}
+        <label for="dinner" class="tags__label">Ужин</label>
+    </li>
+</ul>

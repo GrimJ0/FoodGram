@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block content %}
+    {% csrf_token %}
         <div class="single-card" data-id="{{ recipe.id }}" data-author="{{ recipe.author.id }}">
             {% thumbnail recipe.image "500x500" crop="center" upscale=True as im %}
                 <img src="{{ im.url }}" alt="фото рецепта" class="single-card__image">
@@ -33,7 +34,9 @@
                     <p class="single-card__text"><span class="icon-time"></span> {{ recipe.time }} мин.</p>
                     <ul class="single-card__items">
                         <li class="single-card__item"><p class="single-card__text"><span class="icon-user"></span>{{ recipe.author.get_full_name }}</p></li>
-                        <li class="single-card__item">  <a style="margin-left: 2.5em" href="{% url 'edit_recipe' recipe.slug %}" class="single-card__text">Редактировать рецепт</a></li>
+                        {% if request.user.id == recipe.author.id %}
+                            <li class="single-card__item">  <a style="margin-left: 2.5em" href="{% url 'edit_recipe' recipe.slug %}" class="single-card__text">Редактировать рецепт</a></li>
+                        {% endif %}
                     </ul>
                 </div>
                 <ul class="single-card__items">

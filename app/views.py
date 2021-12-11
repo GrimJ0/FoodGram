@@ -1,18 +1,17 @@
 import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
 from .forms import RecipeForm
 from .models import Favorite, Ingredient, Recipe, Subscription, User
+from .services import get_recipe_filter_tags, get_sub_filter_tags
 from .utils import DataMixin
 
 
@@ -21,9 +20,15 @@ class IndexView(ListView):
     paginate_by = 6
     template_name = 'index.html'
     context_object_name = 'recipes'
+    allow_empty = False
 
     def get_queryset(self):
-        return Recipe.objects.select_related('author').all()
+        return get_recipe_filter_tags(self.request, Recipe)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'index'
+        return context
 
 
 class RecipeDetail(DetailView):
@@ -41,6 +46,7 @@ class RecipeDetail(DetailView):
         context['ingredients'] = context['recipe'].ingredient.prefetch_related('ingredient').all()
         context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
         context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
+        context['navbar'] = 'recipe'
         return context
 
 
@@ -52,6 +58,11 @@ class NewRecipeView(LoginRequiredMixin, DataMixin, CreateView):
     def form_valid(self, form):
         return super().user_form_valid(self.request, self.get_context_data, form)
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'new_recipe'
+        return context
+
 
 class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
     model = Recipe
@@ -59,11 +70,18 @@ class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
     template_name = 'new_recipe.html'
     slug_url_kwarg = 'recipe_slug'
 
+    def get(self, request, *args, **kwargs):
+        recipe = Recipe.objects.get(slug=kwargs.get('recipe_slug'))
+        if request.user != recipe.author:
+            return redirect('recipe', recipe_slug=recipe.slug)
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['ingredient'] = context['recipe'].ingredient.all()
         context['tag_label'] = 'Теги'
         context['tag'] = context['recipe'].tag
+        context['navbar'] = 'new_recipe'
         context['edit'] = True
         return context
 
@@ -84,7 +102,6 @@ class RemoveRecipeView(LoginRequiredMixin, DeleteView):
         return super().delete(self.object)
 
 
-
 class IngredientApi(LoginRequiredMixin, View):
 
     @staticmethod
@@ -103,14 +120,14 @@ class AuthorRecipeList(ListView):
 
     def get_queryset(self):
         username = self.kwargs['username']
-        return Recipe.objects.filter(author__username=username).select_related('author')
+        return get_recipe_filter_tags(self.request, Recipe, username)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['author'] = context['recipes'].first().author
         context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
         context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
-        context['full_name'] = context['recipes'].first().author.get_full_name
+        context['navbar'] = 'author_recipe'
         return context
 
 
@@ -121,12 +138,20 @@ class SubscriptionList(LoginRequiredMixin, ListView):
     context_object_name = 'authors'
 
     def get_queryset(self):
-        return User.objects.filter(
-            following__user=self.request.user).prefetch_related('recipes').annotate(
-            recipe_count=Count('recipes')).order_by('username')
+        recipes = User.objects.annotate(
+            recipe_count=Count('recipes')
+        ).filter(
+            following__user=self.request.user,
+            recipe_count__gt=0
+        ).prefetch_related('recipes').order_by('username')
+        return recipes
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'subscriptions'
+        return context
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class AddSubscriptionApi(LoginRequiredMixin, View):
 
     @staticmethod
@@ -143,7 +168,6 @@ class AddSubscriptionApi(LoginRequiredMixin, View):
         return JsonResponse(data, safe=False)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class RemoveSubscriptionApi(LoginRequiredMixin, View):
 
     @staticmethod
@@ -166,10 +190,14 @@ class FavoriteList(ListView):
     context_object_name = 'favorites'
 
     def get_queryset(self):
-        return Recipe.objects.filter(recipes__user=self.request.user).prefetch_related('recipes')
+        return get_sub_filter_tags(self.request, Recipe)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'favorites'
+        return context
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class AddFavoriteApi(View):
 
     @staticmethod
@@ -186,7 +214,6 @@ class AddFavoriteApi(View):
         return JsonResponse(data, safe=False)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class RemoveFavoriteApi(LoginRequiredMixin, View):
 
     @staticmethod

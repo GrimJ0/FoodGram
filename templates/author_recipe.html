@@ -6,36 +6,26 @@
 {% load app_filters %}
 
 {% block content %}
+    {% csrf_token %}
     <div class="main__header">
-        <h1 class="main__title">{{ full_name }}</h1>
-        <ul class="tags">
-            <li class="tags__item">
-                <a id="breakfast" class="tags__checkbox tags__checkbox_style_orange tags__checkbox_active" href="#"></a>
-                <span class="tags__label">Завтрак</span>
-            </li>
-            <li class="tags__item">
-                <a id="lunch" class="tags__checkbox tags__checkbox_style_green tags__checkbox_active" href="#"></a>
-                <span for="lunch" class="tags__label">Обед</span>
-            </li>
-            <li class="tags__item">
-                <a id="dinner" class="tags__checkbox tags__checkbox_style_purple tags__checkbox_active" href="#"></a>
-                <label for="dinner" class="tags__label">Ужин</label>
-            </li>
-        </ul>
-
+        <h1 class="main__title">{{ author.get_full_name }}</h1>
+        {% include 'skeleton/tag.html' with link='author_recipe' %}
     </div>
+
     <div class="author-subscribe" data-author="{{ author.id }}">
         <p style="padding: 0 0 2em 0;">
-        {% if request.user.id != author.id %}
-            {% if author.id in subscribers %}
-                <button class="button button_style_light-blue button_size_subscribe" name="subscribe">Отписаться от автора
-                </button>
-            {% else %}
-                <button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>Подписаться
-                    на автора
-                </button>
+            {% if request.user.id != author.id %}
+                {% if author.id in subscribers %}
+                    <button class="button button_style_light-blue button_size_subscribe" name="subscribe">Отписаться от
+                        автора
+                    </button>
+                {% else %}
+                    <button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>
+                        Подписаться
+                        на автора
+                    </button>
+                {% endif %}
             {% endif %}
-        {% endif %}
         </p>
     </div>
     <div class="card-list">
@@ -58,7 +48,7 @@
                         <p class="card__text"><span class="icon-time"></span> {{ recipe.time }} мин.</p>
                         <p class="card__text"><span class="icon-user"></span>
                             <a href="{% url 'recipe' recipe.slug %}" target="_blank"
-                               style="color: black">{{ full_name }}</a>
+                               style="color: black">{{ author.get_full_name }}</a>
                         </p>
                     </div>
                 </div>
@@ -67,9 +57,11 @@
                             class="icon-plus button__icon"></span>Добавить в покупки
                     </button>
                     {% if recipe.id in favorites %}
-                        <button class="button button_style_none" name="favorites"><span class="icon-favorite icon-favorite_active"></span></button>
+                        <button class="button button_style_none" name="favorites"><span
+                                class="icon-favorite icon-favorite_active"></span></button>
                     {% else %}
-                        <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
+                        <button class="button button_style_none" name="favorites" data-out><span
+                                class="icon-favorite"></span></button>
                     {% endif %}
                 </div>
             </div>
@@ -91,6 +83,6 @@
     <script src="{% static '/js/components/Header.js' %}"></script>
 
     <script src="{% static '/js/api/Api.js' %}"></script>
-    <script src="{% static 'authorRecipe.js' %}"></script>
+    <script src="{% static '/authorRecipe.js' %}"></script>
 
 {% endblock %}
