@@ -6,7 +6,7 @@
 {% load app_filters %}
 
 {% block content %}
-
+    {% csrf_token %}
     <div class="main__header">
         <h1 class="main__title">Рецепты</h1>
         {% include 'skeleton/tag.html' with link='index' %}
@@ -36,9 +36,24 @@
                     </div>
                 </div>
                 <div class="card__footer">
-                    <button class="button button_style_light-blue" name="purchases" data-out><span
-                            class="icon-plus button__icon"></span>Добавить в покупки
-                    </button>
+                    {% if recipe.id in purchases %}
+                        <button class="button button_style_light-blue-outline" name="purchases"><span
+                                class="icon-check button__icon"></span> Рецепт добавлен
+                        </button>
+                    {% else %}
+                        <button class="button button_style_light-blue" name="purchases" data-out><span
+                                class="icon-plus button__icon"></span>Добавить в покупки
+                        </button>
+                    {% endif %}
+                    {% if request.user.is_authenticated %}
+                        {% if recipe.id in favorites %}
+                            <button class="button button_style_none" name="favorites"><span
+                                    class="icon-favorite icon-favorite_active"></span></button>
+                        {% else %}
+                            <button class="button button_style_none" name="favorites" data-out><span
+                                    class="icon-favorite"></span></button>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
@@ -47,18 +62,21 @@
         {% include "skeleton/paginator.html" %}
     {% endif %}
 
-    {% if request.user.is_authenticated %}
-        <script src="{% static '/js/components/Favorites.js' %}"></script>
-        <script src="{% static '/indexAuth.js' %}"></script>
-    {% else %}
-        <script src="{% static '/indexNotAuth.js' %}"></script>
-    {% endif %}
     <script src="{% static '/js/components/MainCards.js' %}"></script>
     <script src="{% static '/js/components/Purchases.js' %}"></script>
+
+    {% if request.user.is_authenticated %}
+        <script src="{% static '/js/components/Favorites.js' %}"></script>
+    {% endif %}
     <script src="{% static '/js/config/config.js' %}"></script>
     <script src="{% static '/js/components/CardList.js' %}"></script>
     <script src="{% static '/js/components/Header.js' %}"></script>
     <script src="{% static '/js/api/Api.js' %}"></script>
+    {% if request.user.is_authenticated %}
+        <script src="{% static '/indexAuth.js' %}"></script>
+    {% else %}
+        <script src="{% static '/indexNotAuth.js' %}"></script>
+    {% endif %}
 
 
 

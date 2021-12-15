@@ -14,6 +14,7 @@
 
     <div class="author-subscribe" data-author="{{ author.id }}">
         <p style="padding: 0 0 2em 0;">
+        {% if request.user.is_authenticated %}
             {% if request.user.id != author.id %}
                 {% if author.id in subscribers %}
                     <button class="button button_style_light-blue button_size_subscribe" name="subscribe">Отписаться от
@@ -26,6 +27,7 @@
                     </button>
                 {% endif %}
             {% endif %}
+        {% endif %}
         </p>
     </div>
     <div class="card-list">
@@ -53,17 +55,26 @@
                     </div>
                 </div>
                 <div class="card__footer">
-                    <button class="button button_style_light-blue" name="purchases" data-out><span
-                            class="icon-plus button__icon"></span>Добавить в покупки
-                    </button>
-                    {% if recipe.id in favorites %}
-                        <button class="button button_style_none" name="favorites"><span
-                                class="icon-favorite icon-favorite_active"></span></button>
+                    {% if recipe.id in purchases %}
+                        <button class="button button_style_light-blue-outline" name="purchases"><span
+                                class="icon-check button__icon"></span> Рецепт добавлен
+                        </button>
                     {% else %}
-                        <button class="button button_style_none" name="favorites" data-out><span
-                                class="icon-favorite"></span></button>
+                        <button class="button button_style_light-blue" name="purchases" data-out><span
+                                class="icon-plus button__icon"></span>Добавить в покупки
+                        </button>
+                    {% endif %}
+                    {% if request.user.is_authenticated %}
+                        {% if recipe.id in favorites %}
+                            <button class="button button_style_none" name="favorites"><span
+                                    class="icon-favorite icon-favorite_active"></span></button>
+                        {% else %}
+                            <button class="button button_style_none" name="favorites" data-out><span
+                                    class="icon-favorite"></span></button>
+                        {% endif %}
                     {% endif %}
                 </div>
+
             </div>
         {% endfor %}
     </div>
@@ -86,3 +97,4 @@
     <script src="{% static '/authorRecipe.js' %}"></script>
 
 {% endblock %}
+

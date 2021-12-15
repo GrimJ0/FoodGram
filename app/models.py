@@ -86,3 +86,14 @@ class Favorite(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
+
+
+class ShopList(models.Model):
+    """Модель списка покупок"""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users", verbose_name='Пользователь')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="purchases", verbose_name='Рецепт')
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Список покупок'

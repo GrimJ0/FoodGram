@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        @font-face {font-family: Arial; src: url("/static/fonts/arial.ttf"); }
+        body {
+            font-weight: 200;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            font-size: 20px;
+            font-weight: 100;
+            text-align: center;
+            color: #007cae;
+        }
+
+        .title {
+            font-size: 30px;
+            font-weight: 100;
+            padding: 10px 20px 0px 20px;
+        }
+
+        .title span {
+            color: #007cae;
+        }
+
+        .details {
+            font-size: 22px;
+            padding: 10px 20px 0 20px;
+            text-align: left !important;
+        }
+
+        .hrItem {
+            border: none;
+            height: 1px;
+            color: #333;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+    <div class='header'>
+        <p class='title'>Список покупок</p>
+    </div>
+    <div class='details'>
+        {% for recipe in recipes %}
+            {{ recipe.ingredient.title }} - {{ recipe.ing_count_sum }} {{ recipe.ingredient.dimension }}<br/>
+            <hr class='hrItem'/>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

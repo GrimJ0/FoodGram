@@ -1,18 +1,19 @@
 import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.db.models import Count
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
+
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
 from .forms import RecipeForm
-from .models import Favorite, Ingredient, Recipe, Subscription, User
-from .services import get_recipe_filter_tags, get_sub_filter_tags
-from .utils import DataMixin
+from .models import Favorite, Ingredient, Recipe, Subscription, User, ShopList, RecipeIngredient
+from .utils import get_recipe_filter_tags, get_sub_filter_tags, render_to_pdf
+from .mixins import DataMixin, AddMixin, RemoveMixin
 
 
 class IndexView(ListView):
@@ -27,6 +28,9 @@ class IndexView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
+            context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
         context['navbar'] = 'index'
         return context
 
@@ -44,8 +48,10 @@ class RecipeDetail(DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['ingredients'] = context['recipe'].ingredient.prefetch_related('ingredient').all()
-        context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
-        context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
+        if self.request.user.is_authenticated:
+            context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
+            context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
+        context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
         context['navbar'] = 'recipe'
         return context
 
@@ -60,6 +66,7 @@ class NewRecipeView(LoginRequiredMixin, DataMixin, CreateView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
         context['navbar'] = 'new_recipe'
         return context
 
@@ -79,6 +86,7 @@ class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['ingredient'] = context['recipe'].ingredient.all()
+        context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
         context['tag_label'] = 'Теги'
         context['tag'] = context['recipe'].tag
         context['navbar'] = 'new_recipe'
@@ -125,8 +133,10 @@ class AuthorRecipeList(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['author'] = context['recipes'].first().author
-        context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
-        context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
+        if self.request.user.is_authenticated:
+            context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
+            context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
+        context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
         context['navbar'] = 'author_recipe'
         return context
 
@@ -148,6 +158,7 @@ class SubscriptionList(LoginRequiredMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
         context['navbar'] = 'subscriptions'
         return context
 
@@ -194,36 +205,66 @@ class FavoriteList(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
         context['navbar'] = 'favorites'
         return context
 
 
-class AddFavoriteApi(View):
+class AddFavoriteApi(AddMixin, View):
 
-    @staticmethod
-    def post(request, *args, **kwargs):
-        user = request.user
-        recipe_id = json.loads(request.body).get('id')
-        recipe = Recipe.objects.get(id=recipe_id)
-        favorite = Favorite.objects.filter(user=user, recipe=recipe).exists()
-        if not favorite:
-            _, favorited = Favorite.objects.get_or_create(user=user, recipe=recipe)
-            data = {"success": favorited}
-        else:
-            data = {"success": False}
-        return JsonResponse(data, safe=False)
+    def post(self, request, *args, **kwargs):
+        return super().user_post(request, Favorite)
 
 
-class RemoveFavoriteApi(LoginRequiredMixin, View):
+class RemoveFavoriteApi(LoginRequiredMixin, RemoveMixin, View):
 
-    @staticmethod
-    def delete(request, id, *args, **kwargs):
-        user = request.user
-        recipe = Recipe.objects.get(id=id)
-        favorite = Favorite.objects.filter(user=user, recipe=recipe)
-        if favorite.exists():
-            removed = favorite.delete()
-            data = {"success": removed}
-        else:
-            data = {"success": False}
-        return JsonResponse(data, safe=False)
+    def delete(self, request, id, *args, **kwargs):
+        return super().user_delete(request, id, Favorite)
+
+
+class PurchaseList(ListView):
+    model = ShopList
+    template_name = 'shop_list.html'
+    context_object_name = 'purchases'
+
+    def get_queryset(self):
+        return ShopList.objects.select_related('recipe').filter(user=self.request.user)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['navbar'] = 'shop_list'
+        return context
+
+
+class AddPurchaseApi(AddMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        return super().user_post(request, ShopList)
+
+
+class RemovePurchaseApi(LoginRequiredMixin, RemoveMixin, View):
+
+    def delete(self, request, id, *args, **kwargs):
+        return super().user_delete(request, id, ShopList)
+
+
+class GeneratePDF(View):
+
+    def get(self, request, *args, **kwargs):
+        recipes = RecipeIngredient.objects.filter(
+            ingredients__purchases__user=self.request.user
+        ).raw('SELECT *, SUM(ing_count) ing_count_sum FROM app_recipeingredient GROUP BY ingredient_id')
+        context = {
+            "recipes": recipes
+        }
+        pdf = render_to_pdf('pdf/pdf.html', context)
+        if pdf:
+            response = HttpResponse(pdf, content_type='application/pdf; charset=utf-8')
+            filename = f"Shop list.pdf"
+            content = f"inline; filename={filename}"
+            download = request.GET.get("download")
+            if download:
+                content = f"attachment; filename={filename}"
+            response['Content-Disposition'] = content
+            return response
+        return HttpResponse("Not found")

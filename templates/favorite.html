@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block content %}
+    {% csrf_token %}
     <div class="main__header">
         <h1 class="main__title">Избранное</h1>
         {% include 'skeleton/tag.html' with link='favorites' %}
@@ -35,7 +36,15 @@
                             </div>
                         </div>
                         <div class="card__footer">
-                            <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span>Добавить в покупки</button>
+                            {% if favorite.id in purchases %}
+                                <button class="button button_style_light-blue-outline" name="purchases"><span
+                                        class="icon-check button__icon"></span> Рецепт добавлен
+                                </button>
+                            {% else %}
+                                <button class="button button_style_light-blue" name="purchases" data-out><span
+                                        class="icon-plus button__icon"></span> Добавить в покупки
+                                </button>
+                            {% endif %}
                             <button class="button button_style_none" name="favorites"><span class="icon-favorite icon-favorite_active"></span></button>
                         </div>
                     </div>

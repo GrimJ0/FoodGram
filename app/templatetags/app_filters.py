@@ -38,3 +38,4 @@ def filter_page_url(method, key, value):
             if i in url2 and n[0] == key and n[1] != value:
                 url2.remove(i)
     return '&'.join(url2)
+

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                     Subscription)
+                     Subscription, ShopList)
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -49,9 +49,16 @@ class FavoriteAdmin(admin.ModelAdmin):
     search_fields = ("recipe",)
     empty_value_display = "-пусто-"
 
+class ShopListAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "recipe")
+    list_display_links = ("id", "user")
+    search_fields = ("recipe",)
+    empty_value_display = "-пусто-"
+
 
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(RecipeIngredient, RecipeIngredientAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(ShopList, ShopListAdmin)
