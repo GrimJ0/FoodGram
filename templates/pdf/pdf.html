@@ -29,7 +29,7 @@
         }
 
         .details {
-            font-size: 22px;
+            font-size: 18px;
             padding: 10px 20px 0 20px;
             text-align: left !important;
         }
@@ -47,12 +47,12 @@
     <div class='header'>
         <p class='title'>Список покупок</p>
     </div>
-    <div class='details'>
         {% for recipe in recipes %}
-            {{ recipe.ingredient.title }} - {{ recipe.ing_count_sum }} {{ recipe.ingredient.dimension }}<br/>
-            <hr class='hrItem'/>
+            <div class='details'>
+                    {{ recipe.ingredient.title }} - {{ recipe.ing_count_sum }} {{ recipe.ingredient.dimension }}<br/>
+                    <hr class='hrItem'/>
+            </div>
         {% endfor %}
-    </div>
 </div>
 </body>
 </html>
