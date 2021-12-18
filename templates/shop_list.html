@@ -29,7 +29,9 @@
                 </li>
             {% endfor %}
         </ul>
-        <a href="{% url 'pdf' %}" target="_blank"><button class="button button_style_blue">Скачать список</button></a>
+        {% if purchases %}
+            <a href="{% url 'pdf' %}" target="_blank"><button class="button button_style_blue">Скачать список</button></a>
+        {% endif %}
     </div>
 
     <script src="{% static '/js/config/config.js' %}"></script>

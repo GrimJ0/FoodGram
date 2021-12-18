@@ -31,6 +31,12 @@ class IndexView(ListView):
         if self.request.user.is_authenticated:
             context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
             context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
+        else:
+            session_key = self.request.session.get('purchase_id')
+            if session_key:
+                context['purchases'] = ShopList.objects.filter(
+                    session_key=session_key
+                ).select_related('recipe').values_list('recipe', flat=True)
         context['navbar'] = 'index'
         return context
 
@@ -51,7 +57,13 @@ class RecipeDetail(DetailView):
         if self.request.user.is_authenticated:
             context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
             context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
-        context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
+            context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
+        else:
+            session_key = self.request.session.get('purchase_id')
+            if session_key:
+                context['purchases'] = ShopList.objects.filter(
+                    session_key=session_key
+                ).select_related('recipe').values_list('recipe', flat=True)
         context['navbar'] = 'recipe'
         return context
 
@@ -134,7 +146,13 @@ class AuthorRecipeList(ListView):
         if self.request.user.is_authenticated:
             context['subscribers'] = self.request.user.subscriber.values_list('author', flat=True)
             context['favorites'] = self.request.user.follower.values_list('recipe', flat=True)
-        context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
+            context['purchases'] = self.request.user.users.values_list('recipe', flat=True)
+        else:
+            session_key = self.request.session.get('purchase_id')
+            if session_key:
+                context['purchases'] = ShopList.objects.filter(
+                    session_key=session_key
+                ).select_related('recipe').values_list('recipe', flat=True)
         context['navbar'] = 'author_recipe'
         return context
 
@@ -208,7 +226,7 @@ class FavoriteList(ListView):
         return context
 
 
-class AddFavoriteApi(AddMixin, View):
+class AddFavoriteApi(LoginRequiredMixin, AddMixin, View):
 
     def post(self, request, *args, **kwargs):
         return super().user_post(request, Favorite)
@@ -226,7 +244,14 @@ class PurchaseList(ListView):
     context_object_name = 'purchases'
 
     def get_queryset(self):
-        return ShopList.objects.select_related('recipe').filter(user=self.request.user)
+        shop_list = None
+        if self.request.user.is_authenticated:
+            shop_list = ShopList.objects.select_related('recipe').filter(user=self.request.user)
+        else:
+            session_key = self.request.session.get('purchase_id')
+            if session_key:
+                shop_list = ShopList.objects.select_related('recipe').filter(session_key=session_key)
+        return shop_list
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -240,7 +265,7 @@ class AddPurchaseApi(AddMixin, View):
         return super().user_post(request, ShopList)
 
 
-class RemovePurchaseApi(LoginRequiredMixin, RemoveMixin, View):
+class RemovePurchaseApi(RemoveMixin, View):
 
     def delete(self, request, id, *args, **kwargs):
         return super().user_delete(request, id, ShopList)
@@ -249,9 +274,19 @@ class RemovePurchaseApi(LoginRequiredMixin, RemoveMixin, View):
 class GeneratePDF(View):
 
     def get(self, request, *args, **kwargs):
-        recipes = RecipeIngredient.objects.filter(
-            ingredients__purchases__user=self.request.user
-        ).raw('SELECT *, SUM(ing_count) ing_count_sum FROM app_recipeingredient GROUP BY ingredient_id')
+        recipes = None
+        custom_row = 'SELECT *, SUM(ing_count) ing_count_sum FROM app_recipeingredient GROUP BY ingredient_id'
+        if self.request.user.is_authenticated:
+            recipes = RecipeIngredient.objects.filter(
+                ingredients__purchases__user=self.request.user
+            ).raw(custom_row)
+        else:
+            session_key = self.request.session.get('purchase_id')
+            if session_key:
+                recipes = RecipeIngredient.objects.filter(
+                    ingredients__purchases__session_key=session_key
+                ).raw(custom_row)
+
         context = {
             'recipes': recipes
         }

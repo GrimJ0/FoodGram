@@ -4,6 +4,7 @@ from django.db import models
 from django.urls import reverse
 from multiselectfield import MultiSelectField
 
+
 User = get_user_model()
 
 
@@ -91,8 +92,9 @@ class Favorite(models.Model):
 class ShopList(models.Model):
     """Модель списка покупок"""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users", verbose_name='Пользователь')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="users", verbose_name='Пользователь')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="purchases", verbose_name='Рецепт')
+    session_key = models.CharField(max_length=1024, verbose_name='Ключ сессии', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Список покупок'

@@ -1,4 +1,5 @@
 import json
+import uuid
 
 from django.http import JsonResponse
 from django.views.generic.base import TemplateResponseMixin
@@ -33,16 +34,28 @@ class AddMixin:
 
     @staticmethod
     def user_post(request, obj):
-        user = request.user
+        data = {"success": False}
         recipe_id = json.loads(request.body).get('id')
         recipe = Recipe.objects.get(id=recipe_id)
-
-        exists = obj.objects.filter(user=user, recipe=recipe).exists()
-        if not exists:
-            _, succeed = obj.objects.get_or_create(user=user, recipe=recipe)
-            data = {"success": succeed}
+        if request.user.is_authenticated:
+            user = request.user
+            exists = obj.objects.filter(user=user, recipe=recipe).exists()
+            if not exists:
+                _, succeed = obj.objects.get_or_create(user=user, recipe=recipe)
+                data = {"success": succeed}
         else:
-            data = {"success": False}
+            if not request.session.get('purchase_id'):
+                session_key = request.session['purchase_id'] = str(uuid.uuid4())
+                exists = obj.objects.filter(session_key=session_key, recipe=recipe).exists()
+                if not exists:
+                    _, succeed = obj.objects.get_or_create(session_key=session_key, recipe=recipe)
+                    data = {"success": succeed}
+            else:
+                session_key = request.session.get('purchase_id')
+                exists = obj.objects.filter(session_key=session_key, recipe=recipe).exists()
+                if not exists:
+                    _, succeed = obj.objects.get_or_create(session_key=session_key, recipe=recipe)
+                    data = {"success": succeed}
         return JsonResponse(data, safe=False)
 
 
@@ -50,12 +63,18 @@ class RemoveMixin:
 
     @staticmethod
     def user_delete(request, id, obj):
-        user = request.user
+        data = {"success": False}
         recipe = Recipe.objects.get(id=id)
-        model = obj.objects.filter(user=user, recipe=recipe)
-        if model.exists():
-            succeed = model.delete()
-            data = {"success": succeed}
+        if request.user.is_authenticated:
+            user = request.user
+            model = obj.objects.filter(user=user, recipe=recipe)
+            if model.exists():
+                succeed = model.delete()
+                data = {"success": succeed}
         else:
-            data = {"success": False}
+            session_key = request.session.get('purchase_id')
+            model = obj.objects.filter(session_key=session_key, recipe=recipe)
+            if model.exists():
+                succeed = model.delete()
+                data = {"success": succeed}
         return JsonResponse(data, safe=False)

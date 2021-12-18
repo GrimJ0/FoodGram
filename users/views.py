@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import LoginView
 from django.core.mail import BadHeaderError, send_mail
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -10,7 +11,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.views.generic import CreateView
 
-from app.models import User
+from app.models import User, ShopList
 from foodgram import settings
 
 from .forms import CreationForm
@@ -21,6 +22,39 @@ class SignUp(CreateView):
     form_class = CreationForm
     success_url = reverse_lazy('login')
     template_name = 'signup.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        session_key = self.request.session.get('purchase_id')
+        if session_key:
+            context['purchases'] = ShopList.objects.filter(
+                session_key=session_key
+            ).select_related('recipe').values_list('recipe', flat=True)
+
+        return context
+
+    def form_valid(self, form):
+        session_key = self.request.session.get('purchase_id')
+        user = form.save(commit=False)
+        user.save()
+        if session_key:
+            shop_list = ShopList.objects.select_related('recipe').filter(session_key=session_key)
+            user.users.add(*shop_list)
+        return super().form_valid(form)
+
+
+class LoginUser(LoginView):
+    """Класс авторизации пользователя"""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        session_key = self.request.session.get('purchase_id')
+        if session_key:
+            context['purchases'] = ShopList.objects.filter(
+                session_key=session_key
+            ).select_related('recipe').values_list('recipe', flat=True)
+
+        return context
 
 
 def password_reset_request(request):

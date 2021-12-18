@@ -49,7 +49,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     empty_value_display = "-пусто-"
 
 class ShopListAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "recipe")
+    list_display = ("id", "user", "recipe", "session_key")
     list_display_links = ("id", "user")
     search_fields = ("recipe",)
     empty_value_display = "-пусто-"
