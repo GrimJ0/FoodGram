@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail, BadHeaderError
+from django.core.mail import BadHeaderError, send_mail
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
@@ -12,17 +12,21 @@ from django.views.generic import CreateView
 
 from app.models import User
 from foodgram import settings
+
 from .forms import CreationForm
 
 
 class SignUp(CreateView):
     """Класс регистрации пользователя"""
     form_class = CreationForm
-    success_url = reverse_lazy("login")
-    template_name = "signup.html"
+    success_url = reverse_lazy('login')
+    template_name = 'signup.html'
 
 
 def password_reset_request(request):
+    """
+        Функция для отправки формы на email пользователя для сброса пароля
+    """
     if request.method == "POST":
         password_reset_form = PasswordResetForm(request.POST)
         if password_reset_form.is_valid():
@@ -33,13 +37,13 @@ def password_reset_request(request):
                 user = False
             if user:
                 subject = 'Запрошен сброс пароля'
-                email_template_name = "registration/password_reset_email.html"
+                email_template_name = 'registration/password_reset_email.html'
                 cont = {
                     "email": user.email,
                     'domain': '127.0.0.1:8000',  # доменное имя сайта
-                    'site_name': 'Website',  # название своего сайта
-                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),  # шифруем идентификатор
-                    "user": user,  # чтобы обратиться в письме по логину пользователя
+                    'site_name': 'FoodGram',  # название своего сайта
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),  # шифруем идентификатор
+                    'user': user,
                     'token': default_token_generator.make_token(user),  # генерируем токен
                     'protocol': 'http',
                 }
@@ -49,8 +53,8 @@ def password_reset_request(request):
                               html_message=msg_html)
                 except BadHeaderError:
                     return HttpResponse('Обнаружен недопустимый заголовок!')
-                return redirect("password_reset_done")
+                return redirect('password_reset_done')
             else:
-                messages.error(request, "Пользователь не найден")
+                messages.error(request, 'Пользователь не найден')
                 return redirect('password_reset')
-    return render(request, "registration/password_reset_form.html")
+    return render(request, 'registration/password_reset_form.html')

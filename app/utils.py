@@ -13,12 +13,12 @@ from app.models import Ingredient, RecipeIngredient
 from foodgram import settings
 
 
-def add_ingredient(method):
+def add_ingredient(request):
     ingredients = []
-    if 'nameIngredient' in method:
+    if 'nameIngredient' in request.POST:
         try:
-            name = method.getlist('nameIngredient')
-            value = method.getlist('valueIngredient')
+            name = request.POST.getlist('nameIngredient')
+            value = request.POST.getlist('valueIngredient')
 
             for name, value in zip(name, value):
                 ingredient = Ingredient.objects.get(title=name)
@@ -38,16 +38,16 @@ def clear_ingredient_data():
             recipe.delete()
 
 
-def add_tag(method):
+def add_tag(request):
     tags = []
     for tag in ['BREAKFAST', 'LUNCH', 'DINNER']:
-        if method.get(tag):
+        if request.POST.get(tag):
             tags.append(tag)
     return tags
 
 
-def get_recipe_filter_tags(method, data, username=None):
-    tags = method.GET.getlist('tag')
+def get_recipe_filter_tags(request, data, username=None):
+    tags = request.GET.getlist('tag')
     recipe = data.objects.select_related('author')
     if tags:
         if username is None:
@@ -69,18 +69,18 @@ def get_recipe_filter_tags(method, data, username=None):
     return recipe.filter(my_filter)
 
 
-def get_sub_filter_tags(method, data):
-    tags = method.GET.getlist('tag')
+def get_sub_filter_tags(request, data):
+    tags = request.GET.getlist('tag')
     recipe = data.objects.select_related('author')
     if tags:
-        my_filter = Q(recipes__user=method.user, tag__contains=tags[0])
+        my_filter = Q(recipes__user=request.user, tag__contains=tags[0])
         if recipe.filter(my_filter).exists():
             for tag in tags[1:]:
-                my_filter |= Q(recipes__user=method.user, tag__contains=tag)
+                my_filter |= Q(recipes__user=request.user, tag__contains=tag)
         else:
-            my_filter = Q(recipes__user=method.user)
+            my_filter = Q(recipes__user=request.user)
     else:
-        my_filter = Q(recipes__user=method.user)
+        my_filter = Q(recipes__user=request.user)
     return recipe.filter(my_filter)
 
 

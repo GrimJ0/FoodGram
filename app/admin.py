@@ -32,7 +32,6 @@ class IngredientAdmin(admin.ModelAdmin):
 class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ("id", "ingredient", "ing_count")
     list_display_links = ("id", "ingredient")
-    search_fields = ("title",)
     empty_value_display = "-пусто-"
 
 

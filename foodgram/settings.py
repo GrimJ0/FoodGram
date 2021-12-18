@@ -60,7 +60,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'foodgram.urls'
-TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 TEMPLATES = [
     {
@@ -143,9 +143,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
-LOGIN_URL = "/auth/login/"
-LOGIN_REDIRECT_URL = "index"
-LOGOUT_REDIRECT_URL = "index"
+LOGIN_URL = '/auth/login/'
+LOGIN_REDIRECT_URL = 'index'
+LOGOUT_REDIRECT_URL = 'index'
 
 INTERNAL_IPS = [
     '127.0.0.1',

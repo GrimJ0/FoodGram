@@ -78,10 +78,9 @@ class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
     slug_url_kwarg = 'recipe_slug'
 
     def get(self, request, *args, **kwargs):
-        recipe = Recipe.objects.get(slug=kwargs.get('recipe_slug'))
-        if request.user != recipe.author:
-            return redirect('recipe', recipe_slug=recipe.slug)
-        return super().get(request, *args, **kwargs)
+        if request.user.id == self.get_object().author_id or request.user.role == 'admin':
+            return super().get(request, *args, **kwargs)
+        return redirect('recipe', recipe_slug=self.get_object().slug)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -104,10 +103,9 @@ class RemoveRecipeView(LoginRequiredMixin, DeleteView):
     slug_url_kwarg = 'recipe_slug'
 
     def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if request.user.id != self.object.author_id:
-            return redirect(self.get_success_url())
-        return super().delete(self.object)
+        if request.user.id == self.get_object().author_id or request.user.role == 'admin':
+            return super().delete(self.get_object())
+        return redirect(self.get_success_url())
 
 
 class IngredientApi(LoginRequiredMixin, View):
@@ -173,9 +171,9 @@ class AddSubscriptionApi(LoginRequiredMixin, View):
         follow = Subscription.objects.filter(user=user, author=author).exists()
         if user != author and not follow:
             _, subscribed = Subscription.objects.get_or_create(user=request.user, author=author)
-            data = {"success": subscribed}
+            data = {'success': subscribed}
         else:
-            data = {"success": False}
+            data = {'success': False}
         return JsonResponse(data, safe=False)
 
 
@@ -188,9 +186,9 @@ class RemoveSubscriptionApi(LoginRequiredMixin, View):
         follow = Subscription.objects.filter(user=user, author=author)
         if user != author and follow.exists():
             removed = follow.delete()
-            data = {"success": removed}
+            data = {'success': removed}
         else:
-            data = {"success": False}
+            data = {'success': False}
         return JsonResponse(data, safe=False)
 
 
@@ -255,7 +253,7 @@ class GeneratePDF(View):
             ingredients__purchases__user=self.request.user
         ).raw('SELECT *, SUM(ing_count) ing_count_sum FROM app_recipeingredient GROUP BY ingredient_id')
         context = {
-            "recipes": recipes
+            'recipes': recipes
         }
         pdf = render_to_pdf('pdf/pdf.html', context)
         if pdf:
@@ -267,4 +265,4 @@ class GeneratePDF(View):
                 content = f"attachment; filename={filename}"
             response['Content-Disposition'] = content
             return response
-        return HttpResponse("Not found")
+        return HttpResponse('Not found')
