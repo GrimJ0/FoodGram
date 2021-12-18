@@ -3,7 +3,7 @@
 }
 
 .custom-text-block {
-  height: 10em;
+  height: 2em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,6 +11,14 @@
   font-style: normal;
   font-weight: 600;
   font-size: 20px;
+}
+
+h1.custom-text-block{
+  font-size: 30px;
+}
+
+li.custom-text-block{
+  height: 2em;
 }
 
 .custom-button-block {

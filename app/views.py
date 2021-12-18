@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 
 from django.urls import reverse_lazy
 from django.views import View
@@ -301,3 +301,19 @@ class GeneratePDF(View):
             response['Content-Disposition'] = content
             return response
         return HttpResponse('Not found')
+
+
+def page_not_found(request, exception):
+    """Функция вывода 404-й ошибки"""
+
+    return render(
+        request,
+        "misc/404.html",
+        {"path": request.path},
+        status=404
+    )
+
+
+def server_error(request):
+    """Функция вывода 500-й ошибки"""
+    return render(request, "misc/500.html", status=500)

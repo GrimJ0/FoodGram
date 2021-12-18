@@ -26,10 +26,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-7va9m%*m1nwns6yj4i$^6-169tj06@3b%%c&xmblt4v^i&@3f_")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", True)
+
+DEBUG = os.getenv("DEBUG", False)
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -43,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.flatpages',
     'multiselectfield',
     'sorl.thumbnail',
     'debug_toolbar',
@@ -146,6 +149,8 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = 'index'
+
+SITE_ID = 1
 
 INTERNAL_IPS = [
     '127.0.0.1',
