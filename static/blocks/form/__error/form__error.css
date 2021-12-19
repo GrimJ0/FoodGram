@@ -9,6 +9,10 @@
     justify-self: start;
     grid-column: 1/-1;
 }
+.form__error.message {
+    font-size: 15px;
+    padding-bottom: 20px;
+}
 .form__error:before {
     content: '';
     flex-basis: 100%;

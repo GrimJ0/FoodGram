@@ -1,6 +1,7 @@
 import json
 import uuid
 
+from django.contrib import messages
 from django.http import JsonResponse
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import ModelFormMixin
@@ -18,8 +19,10 @@ class DataMixin(TemplateResponseMixin, ModelFormMixin):
         ingredients = add_ingredient(request)
         tags = add_tag(request)
         if not tags:
+            messages.error(request, 'Нужно выбрать хотя бы один тег')
             return self.render_to_response(get_context_data(form=form))
         if not ingredients:
+            messages.error(request, 'Вы забыли выбрать ингредиент')
             return self.render_to_response(get_context_data(form=form))
         recipe = form.save(commit=False)
         recipe.author = request.user
