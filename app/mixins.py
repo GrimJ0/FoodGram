@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import ModelFormMixin
 
-from .models import Recipe
+from .models import Recipe, ShopList
 from .utils import add_ingredient, add_tag
 
 
@@ -37,6 +37,7 @@ class AddMixin:
     """
     Миксин для добавления рецепта в список покупок и в подписки
     """
+
     @staticmethod
     def user_post(request, obj):
         data = {"success": False}
@@ -68,6 +69,7 @@ class RemoveMixin:
     """
     Миксин для удаления рецепта из списка покупок и из подписок
     """
+
     @staticmethod
     def user_delete(request, id, obj):
         data = {"success": False}
@@ -85,3 +87,20 @@ class RemoveMixin:
                 succeed = model.delete()
                 data = {"success": succeed}
         return JsonResponse(data, safe=False)
+
+
+class GetContextDataMixin:
+
+    @staticmethod
+    def get_user_context_data(request, context):
+        if request.user.is_authenticated:
+            context['subscribers'] = request.user.subscriber.values_list('author', flat=True)
+            context['favorites'] = request.user.follower.values_list('recipe', flat=True)
+            context['purchases'] = request.user.users.values_list('recipe', flat=True)
+        else:
+            session_key = request.session.get('purchase_id')
+            if session_key:
+                context['purchases'] = ShopList.objects.filter(
+                    session_key=session_key
+                ).select_related('recipe').values_list('recipe', flat=True)
+        return context
