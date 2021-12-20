@@ -4,11 +4,11 @@ from django.db import models
 from django.urls import reverse
 from multiselectfield import MultiSelectField
 
-
 User = get_user_model()
 
 
 class Ingredient(models.Model):
+    """Модель ингредиентов"""
     title = models.CharField(max_length=50, verbose_name='Название ингредиента')
     dimension = models.CharField(max_length=20, verbose_name='Единицы измерения')
 
@@ -22,6 +22,7 @@ class Ingredient(models.Model):
 
 
 class RecipeIngredient(models.Model):
+    """Модель соединяет ингредиент и его количество"""
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, verbose_name='Ингредиент')
     ing_count = models.IntegerField(verbose_name='Количество')
 

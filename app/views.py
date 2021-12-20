@@ -1,24 +1,25 @@
 import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Sum, F
-from django.http import JsonResponse, HttpResponse
+from django.db.models import Count, F, Sum
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
-
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
 from .forms import RecipeForm
-from .models import Favorite, Ingredient, Recipe, Subscription, User, ShopList, RecipeIngredient
+from .mixins import AddMixin, DataMixin, RemoveMixin
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient, ShopList,
+                     Subscription, User)
 from .utils import get_recipe_filter_tags, get_sub_filter_tags, render_to_pdf
-from .mixins import DataMixin, AddMixin, RemoveMixin
 
 
 class IndexView(ListView):
+    """Класс для вывода рецептов на главной странице"""
     model = Recipe
-    paginate_by = 6
+    paginate_by = 1
     template_name = 'index.html'
     context_object_name = 'recipes'
     allow_empty = False
@@ -42,6 +43,7 @@ class IndexView(ListView):
 
 
 class RecipeDetail(DetailView):
+    """Класс для вывода рецепта"""
     model = Recipe
     slug_url_kwarg = 'recipe_slug'
     template_name = 'recipe.html'
@@ -69,6 +71,7 @@ class RecipeDetail(DetailView):
 
 
 class NewRecipeView(LoginRequiredMixin, DataMixin, CreateView):
+    """Класс создания рецепта"""
     form_class = RecipeForm
     template_name = 'new_recipe.html'
     slug_url_kwarg = 'recipe_slug'
@@ -84,6 +87,7 @@ class NewRecipeView(LoginRequiredMixin, DataMixin, CreateView):
 
 
 class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
+    """Класс для редактирования рецепта"""
     model = Recipe
     form_class = RecipeForm
     template_name = 'new_recipe.html'
@@ -109,6 +113,7 @@ class EditRecipeView(LoginRequiredMixin, DataMixin, UpdateView):
 
 
 class RemoveRecipeView(LoginRequiredMixin, DeleteView):
+    """Класс для удаления рецепта"""
     model = Recipe
     template_name = 'remove_recipe.html'
     success_url = reverse_lazy('index')
@@ -121,7 +126,9 @@ class RemoveRecipeView(LoginRequiredMixin, DeleteView):
 
 
 class IngredientApi(LoginRequiredMixin, View):
-
+    """
+    Класс принимает название ингредиента и возвращает данные из БД в json
+    """
     @staticmethod
     def get(request, *args, **kwargs):
         ingredient = request.GET['query']
@@ -130,6 +137,7 @@ class IngredientApi(LoginRequiredMixin, View):
 
 
 class AuthorRecipeList(ListView):
+    """Класс вывод рецептов на странице автора"""
     model = Recipe
     paginate_by = 6
     template_name = 'author_recipe.html'
@@ -158,6 +166,9 @@ class AuthorRecipeList(ListView):
 
 
 class SubscriptionList(LoginRequiredMixin, ListView):
+    """
+    Класс выводит автора и его рецепты на которых подписан пользователь
+    """
     model = Subscription
     paginate_by = 6
     template_name = 'my_follow.html'
@@ -180,7 +191,9 @@ class SubscriptionList(LoginRequiredMixin, ListView):
 
 
 class AddSubscriptionApi(LoginRequiredMixin, View):
-
+    """
+    Класс принимает id автора и добавляет его в подписки пользователя
+    """
     @staticmethod
     def post(request, *args, **kwargs):
         user = request.user
@@ -196,7 +209,9 @@ class AddSubscriptionApi(LoginRequiredMixin, View):
 
 
 class RemoveSubscriptionApi(LoginRequiredMixin, View):
-
+    """
+    Класс принимает id автора и удаляет его из подписок пользователя
+    """
     @staticmethod
     def delete(request, id, *args, **kwargs):
         user = request.user
@@ -211,6 +226,10 @@ class RemoveSubscriptionApi(LoginRequiredMixin, View):
 
 
 class FavoriteList(ListView):
+    """
+    Класс выводит рецепты которые пользователь добавил в избранное
+    """
+
     model = Favorite
     paginate_by = 6
     template_name = 'favorite.html'
@@ -227,13 +246,13 @@ class FavoriteList(ListView):
 
 
 class AddFavoriteApi(LoginRequiredMixin, AddMixin, View):
-
+    """Класс добавляет рецепт в избранное"""
     def post(self, request, *args, **kwargs):
         return super().user_post(request, Favorite)
 
 
 class RemoveFavoriteApi(LoginRequiredMixin, RemoveMixin, View):
-
+    """Класс удаляет рецепт из избранных"""
     def delete(self, request, id, *args, **kwargs):
         return super().user_delete(request, id, Favorite)
 
@@ -260,19 +279,19 @@ class PurchaseList(ListView):
 
 
 class AddPurchaseApi(AddMixin, View):
-
+    """Класс добавляет рецепт в список покупок"""
     def post(self, request, *args, **kwargs):
         return super().user_post(request, ShopList)
 
 
 class RemovePurchaseApi(RemoveMixin, View):
-
+    """Класс удаляет рецепт из списка покупок"""
     def delete(self, request, id, *args, **kwargs):
         return super().user_delete(request, id, ShopList)
 
 
 class GeneratePDF(View):
-
+    """Класс для скачивания PDF"""
     def get(self, request, *args, **kwargs):
         recipes = None
         if self.request.user.is_authenticated:

@@ -11,14 +11,16 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.views.generic import CreateView
 
-from app.models import User, ShopList
+from app.models import ShopList, User
 from foodgram import settings
 
 from .forms import CreationForm
 
 
 class SignUp(CreateView):
-    """Класс регистрации пользователя"""
+    """
+    Класс регистрации пользователя
+    """
     form_class = CreationForm
     success_url = reverse_lazy('login')
     template_name = 'signup.html'
@@ -44,7 +46,9 @@ class SignUp(CreateView):
 
 
 class LoginUser(LoginView):
-    """Класс авторизации пользователя"""
+    """
+    Класс авторизации пользователя
+    """
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

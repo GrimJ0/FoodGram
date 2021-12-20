@@ -1,11 +1,11 @@
 from django.urls import path
 
-from .views import (AddFavoriteApi, AddSubscriptionApi, AuthorRecipeList,
-                    EditRecipeView, FavoriteList, IndexView, IngredientApi,
-                    NewRecipeView, RecipeDetail, RemoveFavoriteApi,
-                    RemoveRecipeView, RemoveSubscriptionApi, SubscriptionList,
-                    PurchaseList, AddPurchaseApi, RemovePurchaseApi, GeneratePDF
-                    )
+from .views import (AddFavoriteApi, AddPurchaseApi, AddSubscriptionApi,
+                    AuthorRecipeList, EditRecipeView, FavoriteList,
+                    GeneratePDF, IndexView, IngredientApi, NewRecipeView,
+                    PurchaseList, RecipeDetail, RemoveFavoriteApi,
+                    RemovePurchaseApi, RemoveRecipeView, RemoveSubscriptionApi,
+                    SubscriptionList)
 
 urlpatterns = [
     path("", IndexView.as_view(), name="index"),

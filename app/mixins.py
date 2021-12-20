@@ -34,7 +34,9 @@ class DataMixin(TemplateResponseMixin, ModelFormMixin):
 
 
 class AddMixin:
-
+    """
+    Миксин для добавления рецепта в список покупок и в подписки
+    """
     @staticmethod
     def user_post(request, obj):
         data = {"success": False}
@@ -63,7 +65,9 @@ class AddMixin:
 
 
 class RemoveMixin:
-
+    """
+    Миксин для удаления рецепта из списка покупок и из подписок
+    """
     @staticmethod
     def user_delete(request, id, obj):
         data = {"success": False}

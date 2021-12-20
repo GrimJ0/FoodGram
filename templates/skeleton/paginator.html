@@ -4,7 +4,7 @@
         {% if page_obj.has_previous %}
                 <li class="pagination__item">
                 {% if 'page' in request.GET %}
-                    <a class="pagination__link link" href="?{% filter_page_url method=request.GET key='page' value=page_obj.previous_page_number %}&page={{ page_obj.previous_page_number }}">
+                    <a class="pagination__link link" href="?{% clear_url request=request key='page' value=page_obj.previous_page_number %}&page={{ page_obj.previous_page_number }}">
                         <span class="icon-left"></span>
                 {% else %}
                     </a><a class="pagination__link link" href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}">
@@ -26,7 +26,7 @@
             {% else %}
                 <li class="pagination__item">
                 {% if 'page' in request.GET %}
-                    <a class="pagination__link link" href="?{% filter_page_url method=request.GET key='page' value=i %}&page={{ i }}">{{ i }}</a>
+                    <a class="pagination__link link" href="?{% clear_url request=request key='page' value=i %}&page={{ i }}">{{ i }}</a>
                 {% else %}
                     <a class="pagination__link link" href="?{{ request.GET.urlencode }}&page={{ i }}">{{ i }}</a>
                 {% endif %}
@@ -37,7 +37,7 @@
         {% if page_obj.has_next %}
             <li class="pagination__item">
                 {% if 'page' in request.GET %}
-                    <a class="pagination__link link" href="?{% filter_page_url method=request.GET key='page' value=page_obj.next_page_number %}&page={{ page_obj.next_page_number }}">
+                    <a class="pagination__link link" href="?{% clear_url request=request key='page' value=page_obj.next_page_number %}&page={{ page_obj.next_page_number }}">
                         <span class="icon-right"></span>
                 {% else %}
                     </a><a class="pagination__link link" href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}">
