@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Sum, F
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 
@@ -275,17 +275,22 @@ class GeneratePDF(View):
 
     def get(self, request, *args, **kwargs):
         recipes = None
-        custom_row = 'SELECT *, SUM(ing_count) ing_count_sum FROM app_recipeingredient GROUP BY ingredient_id'
         if self.request.user.is_authenticated:
             recipes = RecipeIngredient.objects.filter(
                 ingredients__purchases__user=self.request.user
-            ).raw(custom_row)
+            ).values(
+                ing_title=F('ingredient__title'),
+                ing_dimension=F('ingredient__dimension')
+            ).annotate(ing_count_sum=Sum('ing_count'))
         else:
             session_key = self.request.session.get('purchase_id')
             if session_key:
                 recipes = RecipeIngredient.objects.filter(
                     ingredients__purchases__session_key=session_key
-                ).raw(custom_row)
+                ).values(
+                    ing_title=F('ingredient__title'),
+                    ing_dimension=F('ingredient__dimension')
+                ).annotate(Sum('ing_count'))
 
         context = {
             'recipes': recipes

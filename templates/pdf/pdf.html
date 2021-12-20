@@ -49,7 +49,7 @@
     </div>
         {% for recipe in recipes %}
             <div class='details'>
-                    {{ recipe.ingredient.title }} - {{ recipe.ing_count_sum }} {{ recipe.ingredient.dimension }}<br/>
+                    {{ recipe.ing_title }} - {{ recipe.ing_count_sum }} {{ recipe.ing_dimension }}<br/>
                     <hr class='hrItem'/>
             </div>
         {% endfor %}
