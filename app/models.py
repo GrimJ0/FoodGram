@@ -2,6 +2,7 @@ from autoslug import AutoSlugField
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
+from pytils.translit import slugify
 from multiselectfield import MultiSelectField
 
 User = get_user_model()
@@ -54,14 +55,18 @@ class Recipe(models.Model):
                               )
     time = models.PositiveIntegerField(verbose_name='Время приготовления')
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
-    slug = AutoSlugField(populate_from='title', unique_with=['author__username', 'pub_date__month'],
-                         verbose_name="slug")
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="slug")
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
         return reverse('recipe', kwargs={'recipe_slug': self.slug})
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(f"{self.author.get_full_name()}-{self.title}")
+        return super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Рецепт'
