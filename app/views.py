@@ -20,7 +20,7 @@ class IndexView(GetContextDataMixin, ListView):
     paginate_by = 6
     template_name = 'index.html'
     context_object_name = 'recipes'
-    allow_empty = False
+
 
     def get_queryset(self):
         return get_recipe_filter_tags(self.request, Recipe)
@@ -212,7 +212,9 @@ class GeneratePDF(View):
                 ).values(
                     ing_title=F('ingredient__title'),
                     ing_dimension=F('ingredient__dimension')
-                ).annotate(Sum('ing_count'))
+                ).annotate(ing_count_sum=Sum('ing_count'))
+                for i in recipes:
+                    print(i)
 
         context = {
             'recipes': recipes

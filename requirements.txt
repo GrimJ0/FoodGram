@@ -1,0 +1,10 @@
+Django==3.2.9
+django-debug-toolbar==3.2.2
+django-multiselectfield==0.1.12
+Pillow==8.4.0
+psycopg2-binary==2.9.2
+python-dotenv==0.19.2
+pytils==0.3
+sorl-thumbnail==12.7.0
+xhtml2pdf==0.2.5
+gunicorn==20.1.0

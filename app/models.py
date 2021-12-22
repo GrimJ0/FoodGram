@@ -1,4 +1,3 @@
-from autoslug import AutoSlugField
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
@@ -10,8 +9,8 @@ User = get_user_model()
 
 class Ingredient(models.Model):
     """Модель ингредиентов"""
-    title = models.CharField(max_length=50, verbose_name='Название ингредиента')
-    dimension = models.CharField(max_length=20, verbose_name='Единицы измерения')
+    title = models.CharField(max_length=100, verbose_name='Название ингредиента')
+    dimension = models.CharField(max_length=100, verbose_name='Единицы измерения')
 
     def __str__(self):
         return f"{self.title}"
