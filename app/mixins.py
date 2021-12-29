@@ -16,13 +16,13 @@ class DataMixin(TemplateResponseMixin, ModelFormMixin):
     """
 
     def user_form_valid(self, request, get_context_data, form):
-        ingredients = add_ingredient(request)
         tags = add_tag(request)
         if not tags:
             messages.error(request, 'Нужно выбрать хотя бы один тег')
             return self.render_to_response(get_context_data(form=form))
+        ingredients = add_ingredient(request)
         if not ingredients:
-            messages.error(request, 'Вы забыли выбрать ингредиент')
+            messages.error(request, 'Вы забыли выбрать ингредиенты')
             return self.render_to_response(get_context_data(form=form))
         recipe = form.save(commit=False)
         recipe.author = request.user
@@ -47,21 +47,21 @@ class AddMixin:
             user = request.user
             exists = obj.objects.filter(user=user, recipe=recipe).exists()
             if not exists:
-                _, succeed = obj.objects.get_or_create(user=user, recipe=recipe)
-                data = {"success": succeed}
+                _, success = obj.objects.get_or_create(user=user, recipe=recipe)
+                data = {"success": success}
         else:
             if not request.session.get('purchase_id'):
                 session_key = request.session['purchase_id'] = str(uuid.uuid4())
                 exists = obj.objects.filter(session_key=session_key, recipe=recipe).exists()
                 if not exists:
-                    _, succeed = obj.objects.get_or_create(session_key=session_key, recipe=recipe)
-                    data = {"success": succeed}
+                    _, success = obj.objects.get_or_create(session_key=session_key, recipe=recipe)
+                    data = {"success": success}
             else:
                 session_key = request.session.get('purchase_id')
                 exists = obj.objects.filter(session_key=session_key, recipe=recipe).exists()
                 if not exists:
-                    _, succeed = obj.objects.get_or_create(session_key=session_key, recipe=recipe)
-                    data = {"success": succeed}
+                    _, success = obj.objects.get_or_create(session_key=session_key, recipe=recipe)
+                    data = {"success": success}
         return JsonResponse(data, safe=False)
 
 
@@ -78,14 +78,14 @@ class RemoveMixin:
             user = request.user
             model = obj.objects.filter(user=user, recipe=recipe)
             if model.exists():
-                succeed = model.delete()
-                data = {"success": succeed}
+                success = model.delete()
+                data = {"success": success}
         else:
             session_key = request.session.get('purchase_id')
             model = obj.objects.filter(session_key=session_key, recipe=recipe)
             if model.exists():
-                succeed = model.delete()
-                data = {"success": succeed}
+                success = model.delete()
+                data = {"success": success}
         return JsonResponse(data, safe=False)
 
 

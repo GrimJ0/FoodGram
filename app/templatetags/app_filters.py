@@ -10,8 +10,8 @@ def get_recipe_tags(values):
     """
     tags = {
         'BREAKFAST': '<span class="badge badge_style_orange">Завтрак</span>',
-        'LUNCH': '<span class="badge badge_style_green">Обед</span></li>',
-        'DINNER': '<span class="badge badge_style_purple">Ужин</span></li>',
+        'LUNCH': '<span class="badge badge_style_green">Обед</span>',
+        'DINNER': '<span class="badge badge_style_purple">Ужин</span>',
     }
     html_tags = []
     for tag in values:

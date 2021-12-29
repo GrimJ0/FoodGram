@@ -27,7 +27,7 @@ class IndexView(GetContextDataMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context = super().get_user_context_data(self.request, context)
+        context.update(super().get_user_context_data(self.request, context))
         context['navbar'] = 'index'
         return context
 
@@ -45,7 +45,7 @@ class RecipeDetail(GetContextDataMixin, DetailView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context = super().get_user_context_data(self.request, context)
+        context.update(super().get_user_context_data(self.request, context))
         context['ingredients'] = context['recipe'].ingredient.prefetch_related('ingredient').all()
         context['navbar'] = 'recipe'
         return context
@@ -120,7 +120,7 @@ class AuthorRecipeList(GetContextDataMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context = super().get_user_context_data(self.request, context)
+        context.update(super().get_user_context_data(self.request, context))
         context['author'] = context['recipes'].first().author
         context['navbar'] = 'author_recipe'
         return context

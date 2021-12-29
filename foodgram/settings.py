@@ -37,9 +37,6 @@ ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", ['*']).split(" ")
 # Application definition
 
 INSTALLED_APPS = [
-    'app',
-    'api',
-    'users',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,6 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.flatpages',
+    'app',
+    'api',
+    'users',
     'multiselectfield',
     'sorl.thumbnail',
     'debug_toolbar',
@@ -144,6 +144,9 @@ STATICFILES_DIRS = [
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
