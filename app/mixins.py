@@ -7,7 +7,7 @@ from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import ModelFormMixin
 
 from .models import Recipe, ShopList
-from .utils import add_ingredient, add_tag
+from .services import add_ingredient, add_tag
 
 
 class DataMixin(TemplateResponseMixin, ModelFormMixin):

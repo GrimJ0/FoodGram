@@ -11,7 +11,7 @@ from .forms import RecipeForm
 from .mixins import DataMixin, GetContextDataMixin
 from .models import (Favorite, Recipe, RecipeIngredient, ShopList,
                      Subscription, User)
-from .utils import get_recipe_filter_tags, get_sub_filter_tags, render_to_pdf
+from .services import get_recipe_filter_tags, get_sub_filter_tags, render_to_pdf
 
 
 class IndexView(GetContextDataMixin, ListView):
