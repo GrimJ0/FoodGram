@@ -17,18 +17,17 @@ class TestAuthorizedUsers(TestCase):
         )
 
         self.client.login(email='connor@skynet.com', password='test')
+        self.response = self.client.get(reverse('index'))
 
     def test_home_page(self):
-        response = self.client.get(reverse('index'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['recipes'].count(), 4)
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.response.context['recipes'].count(), 4)
 
     def test_favorites(self):
-        response = self.client.get(reverse('index'))
         html = '''<button class="button button_style_none"
                 name="favorites" data-out>
                 <span class="icon-favorite"></span></button>'''
-        self.assertContains(response, html, count=4, html=True)
+        self.assertContains(self.response, html, count=4, html=True)
 
         self.recipe = Recipe.objects.all().first()
         Favorite.objects.create(user=self.user, recipe=self.recipe)
@@ -36,16 +35,22 @@ class TestAuthorizedUsers(TestCase):
         self.assertContains(response, html, count=3, html=True)
 
     def test_purchases(self):
-        response = self.client.get(reverse('index'))
         html = '''<button class="button button_style_light-blue"
                 name="purchases" data-out><span class="icon-plus button__icon">
                 </span>Добавить в покупки</button>'''
-        self.assertContains(response, html, count=4, html=True)
+        self.assertContains(self.response, html, count=4, html=True)
 
         self.recipe = Recipe.objects.all().first()
         ShopList.objects.create(user=self.user, recipe=self.recipe)
         response = self.client.get(reverse('index'))
         self.assertContains(response, html, count=3, html=True)
+
+        html = '''<button class="button button_style_light-blue-outline" name="purchases">
+                        <span class="icon-check button__icon"></span> Рецепт добавлен</button>'''
+        self.assertContains(response, html, html=True)
+
+        html = '<span class="badge badge_style_blue nav__badge" id="counter">1</span>'
+        self.assertContains(response, html, html=True)
 
     def test_tag_filter(self):
         response = self.client.get(reverse('index'), data={'tag': 'BREAKFAST'})
@@ -60,25 +65,26 @@ class TestUnauthorizedUsers(TestCase):
     def setUp(self):
         """создание тестового клиента"""
         self.client = Client()
+        self.response = self.client.get(reverse('index'))
 
     def test_home_page(self):
-        response = self.client.get(reverse('index'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['recipes'].count(), 4)
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.response.context['recipes'].count(), 4)
 
-    def test_subscriptions(self):
-        response = self.client.get(reverse('index'))
+    def test_favorites(self):
         html = '''<button class="button button_style_none"
                 name="favorites" data-out>
                 <span class="icon-favorite"></span></button>'''
-        self.assertNotContains(response, html, html=True)
+        self.assertNotContains(self.response, html, html=True)
+        html = '''<button class="button button_style_none" name="favorites"><span
+                class="icon-favorite icon-favorite_active"></span></button>'''
+        self.assertNotContains(self.response, html, html=True)
 
     def test_purchases(self):
-        response = self.client.get(reverse('index'))
         html = '''<button class="button button_style_light-blue"
                 name="purchases" data-out><span class="icon-plus button__icon">
                 </span>Добавить в покупки</button>'''
-        self.assertContains(response, html, count=4, html=True)
+        self.assertContains(self.response, html, count=4, html=True)
 
         self.recipe = Recipe.objects.all().first()
         session = self.client.session
@@ -88,8 +94,16 @@ class TestUnauthorizedUsers(TestCase):
         session.save()
         session_key = self.client.session.get('purchase_id')
         ShopList.objects.create(session_key=session_key, recipe=self.recipe)
+
         response = self.client.get(reverse('index'))
         self.assertContains(response, html, count=3, html=True)
+
+        html = '''<button class="button button_style_light-blue-outline" name="purchases">
+                        <span class="icon-check button__icon"></span> Рецепт добавлен</button>'''
+        self.assertContains(response, html, html=True)
+
+        html = '<span class="badge badge_style_blue nav__badge" id="counter">1</span>'
+        self.assertContains(response, html, html=True)
 
     def test_tag_filter(self):
         response = self.client.get(reverse('index'), data={'tag': 'BREAKFAST'})
