@@ -6,7 +6,7 @@ from app.models import User, Recipe, Favorite, ShopList, Subscription
 
 
 class TestAuthorizedUsers(TestCase):
-    fixtures = ['db.json', ]
+    fixtures = ['db_test.json', ]
 
     def setUp(self):
         """создание тестового клиента"""
@@ -17,10 +17,11 @@ class TestAuthorizedUsers(TestCase):
         )
         self.client.login(email='connor@skynet.com', password='test')
         self.author = User.objects.get(username='veronika')
-        self.recipe = Recipe.objects.all().first()
+        self.recipe = Recipe.objects.filter(author=self.author).first()
+
         self.response = self.client.get(reverse('recipe', kwargs={'recipe_slug': self.recipe.slug}))
 
-    def test_detail_recipe(self):
+    def test_detail_recipe_page(self):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context['recipe'].title, 'Пышные панкейки без разрыхлителя')
 
@@ -59,10 +60,11 @@ class TestAuthorizedUsers(TestCase):
         self.assertNotContains(response, html, html=True)
 
     def test_availability_of_edit_recipe_author(self):
-        html = f'''<a style="margin-left: 2.5em" 
+        html = f'''<a style="margin-left: 2.5em"
         href="{reverse("edit_recipe", kwargs={"recipe_slug": self.recipe.slug})}"
          class="single-card__text">Редактировать рецепт</a>'''
-        self.client.login(email='veronika@mail.ru', password='199515Qootqt')
+
+        self.client.login(email='veronika@mail.ru', password='test')
         response = self.client.get(reverse('recipe', kwargs={'recipe_slug': self.recipe.slug}))
         self.assertContains(response, html, html=True)
 
@@ -87,7 +89,7 @@ class TestAuthorizedUsers(TestCase):
         self.assertContains(self.response, html, html=True)
 
     def test_recipe_author_full_name(self):
-        html = '<p class="single-card__text"><span class="icon-user"></span>Вероника Чернова</p>'
+        html = '<p class="single-card__text"><span class="icon-user"></span>Veronika Jonson</p>'
         self.assertContains(self.response, html, html=True)
 
     def test_recipe_ingredients(self):
@@ -113,16 +115,16 @@ class TestAuthorizedUsers(TestCase):
 
 
 class TestUnauthorizedUsers(TestCase):
-    fixtures = ['db.json', ]
+    fixtures = ['db_test.json', ]
 
     def setUp(self):
         """создание тестового клиента"""
         self.client = Client()
         self.author = User.objects.get(username='veronika')
-        self.recipe = Recipe.objects.all().first()
+        self.recipe = Recipe.objects.filter(author=self.author).first()
         self.response = self.client.get(reverse('recipe', kwargs={'recipe_slug': self.recipe.slug}))
 
-    def test_detail_recipe(self):
+    def test_detail_recipe_page(self):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context['recipe'].title, 'Пышные панкейки без разрыхлителя')
 
@@ -185,7 +187,7 @@ class TestUnauthorizedUsers(TestCase):
         self.assertContains(self.response, html, html=True)
 
     def test_recipe_author_full_name(self):
-        html = '<p class="single-card__text"><span class="icon-user"></span>Вероника Чернова</p>'
+        html = '<p class="single-card__text"><span class="icon-user"></span>Veronika Jonson</p>'
         self.assertContains(self.response, html, html=True)
 
     def test_recipe_ingredients(self):

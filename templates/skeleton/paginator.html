@@ -39,8 +39,9 @@
                 {% if 'page' in request.GET %}
                     <a class="pagination__link link" href="?{% clear_url request=request key='page' value=page_obj.next_page_number %}&page={{ page_obj.next_page_number }}">
                         <span class="icon-right"></span>
+                    </a>
                 {% else %}
-                    </a><a class="pagination__link link" href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}">
+                    <a class="pagination__link link" href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}">
                         <span class="icon-right"></span>
                     </a>
                 {% endif %}

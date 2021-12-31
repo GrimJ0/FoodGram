@@ -51,7 +51,7 @@ class RemoveSubscriptionApi(LoginRequiredMixin, View):
         follow = Subscription.objects.filter(user=user, author=author)
         if user != author and follow.exists():
             removed = follow.delete()
-            data = {'success': removed}
+            data = {'success': True if removed else False}
         else:
             data = {'success': False}
         return JsonResponse(data, safe=False)

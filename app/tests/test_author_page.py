@@ -6,7 +6,7 @@ from app.models import User, Recipe, Favorite, ShopList, Subscription
 
 
 class TestAuthorizedUsers(TestCase):
-    fixtures = ['db.json', ]
+    fixtures = ['db_test.json', ]
 
     def setUp(self):
         """создание тестового клиента"""
@@ -73,7 +73,7 @@ class TestAuthorizedUsers(TestCase):
 
 
 class TestUnauthorizedUsers(TestCase):
-    fixtures = ['db.json', ]
+    fixtures = ['db_test.json', ]
 
     def setUp(self):
         """создание тестового клиента"""
@@ -82,7 +82,7 @@ class TestUnauthorizedUsers(TestCase):
         self.author = User.objects.get(username='veronika')
         self.recipe = Recipe.objects.filter(author=self.author).first()
 
-    def test_home_page(self):
+    def test_author_page(self):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context['recipes'].count(), 2)
 

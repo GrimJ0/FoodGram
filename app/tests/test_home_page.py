@@ -6,7 +6,7 @@ from app.models import User, Recipe, Favorite, ShopList
 
 
 class TestAuthorizedUsers(TestCase):
-    fixtures = ['db.json', ]
+    fixtures = ['db_test.json', ]
 
     def setUp(self):
         """создание тестового клиента"""
@@ -21,29 +21,29 @@ class TestAuthorizedUsers(TestCase):
 
     def test_home_page(self):
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(self.response.context['recipes'].count(), 4)
+        self.assertEqual(self.response.context['recipes'].count(), 6)
 
     def test_favorites(self):
         html = '''<button class="button button_style_none"
                 name="favorites" data-out>
                 <span class="icon-favorite"></span></button>'''
-        self.assertContains(self.response, html, count=4, html=True)
+        self.assertContains(self.response, html, count=6, html=True)
 
         self.recipe = Recipe.objects.all().first()
         Favorite.objects.create(user=self.user, recipe=self.recipe)
         response = self.client.get(reverse('index'))
-        self.assertContains(response, html, count=3, html=True)
+        self.assertContains(response, html, count=5, html=True)
 
     def test_purchases(self):
         html = '''<button class="button button_style_light-blue"
                 name="purchases" data-out><span class="icon-plus button__icon">
                 </span>Добавить в покупки</button>'''
-        self.assertContains(self.response, html, count=4, html=True)
+        self.assertContains(self.response, html, count=6, html=True)
 
         self.recipe = Recipe.objects.all().first()
         ShopList.objects.create(user=self.user, recipe=self.recipe)
         response = self.client.get(reverse('index'))
-        self.assertContains(response, html, count=3, html=True)
+        self.assertContains(response, html, count=5, html=True)
 
         html = '''<button class="button button_style_light-blue-outline" name="purchases">
                         <span class="icon-check button__icon"></span> Рецепт добавлен</button>'''
@@ -54,13 +54,13 @@ class TestAuthorizedUsers(TestCase):
 
     def test_tag_filter(self):
         response = self.client.get(reverse('index'), data={'tag': 'BREAKFAST'})
-        self.assertEqual(response.context['recipes'].count(), 2)
+        self.assertEqual(response.context['recipes'].count(), 5)
         response = self.client.get(reverse('index'), data={'tag': ['BREAKFAST', 'LUNCH']})
-        self.assertEqual(response.context['recipes'].count(), 3)
+        self.assertEqual(response.context['recipes'].count(), 6)
 
 
 class TestUnauthorizedUsers(TestCase):
-    fixtures = ['db.json', ]
+    fixtures = ['db_test.json', ]
 
     def setUp(self):
         """создание тестового клиента"""
@@ -69,7 +69,7 @@ class TestUnauthorizedUsers(TestCase):
 
     def test_home_page(self):
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(self.response.context['recipes'].count(), 4)
+        self.assertEqual(self.response.context['recipes'].count(), 6)
 
     def test_favorites(self):
         html = '''<button class="button button_style_none"
@@ -84,7 +84,7 @@ class TestUnauthorizedUsers(TestCase):
         html = '''<button class="button button_style_light-blue"
                 name="purchases" data-out><span class="icon-plus button__icon">
                 </span>Добавить в покупки</button>'''
-        self.assertContains(self.response, html, count=4, html=True)
+        self.assertContains(self.response, html, count=6, html=True)
 
         self.recipe = Recipe.objects.all().first()
         session = self.client.session
@@ -96,7 +96,7 @@ class TestUnauthorizedUsers(TestCase):
         ShopList.objects.create(session_key=session_key, recipe=self.recipe)
 
         response = self.client.get(reverse('index'))
-        self.assertContains(response, html, count=3, html=True)
+        self.assertContains(response, html, count=5, html=True)
 
         html = '''<button class="button button_style_light-blue-outline" name="purchases">
                         <span class="icon-check button__icon"></span> Рецепт добавлен</button>'''
@@ -107,6 +107,6 @@ class TestUnauthorizedUsers(TestCase):
 
     def test_tag_filter(self):
         response = self.client.get(reverse('index'), data={'tag': 'BREAKFAST'})
-        self.assertEqual(response.context['recipes'].count(), 2)
-        response = self.client.get(reverse('index'), data={'tag': ['DINNER', 'LUNCH']})
-        self.assertEqual(response.context['recipes'].count(), 3)
+        self.assertEqual(response.context['recipes'].count(), 5)
+        response = self.client.get(reverse('index'), data={'tag': ['BREAKFAST', 'LUNCH']})
+        self.assertEqual(response.context['recipes'].count(), 6)
