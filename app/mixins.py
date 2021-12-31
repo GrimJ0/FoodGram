@@ -79,13 +79,13 @@ class RemoveMixin:
             model = obj.objects.filter(user=user, recipe=recipe)
             if model.exists():
                 success = model.delete()
-                data = {"success": success}
+                data = {"success": True if success else False}
         else:
             session_key = request.session.get('purchase_id')
             model = obj.objects.filter(session_key=session_key, recipe=recipe)
             if model.exists():
                 success = model.delete()
-                data = {"success": success}
+                data = {"success": True if success else False}
         return JsonResponse(data, safe=False)
 
 

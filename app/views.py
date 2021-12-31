@@ -151,7 +151,7 @@ class SubscriptionList(LoginRequiredMixin, ListView):
         return context
 
 
-class FavoriteList(ListView):
+class FavoriteList(LoginRequiredMixin, ListView):
     """
     Класс выводит рецепты которые пользователь добавил в избранное
     """
