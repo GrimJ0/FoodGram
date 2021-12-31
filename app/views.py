@@ -213,9 +213,6 @@ class GeneratePDF(View):
                     ing_title=F('ingredient__title'),
                     ing_dimension=F('ingredient__dimension')
                 ).annotate(ing_count_sum=Sum('ing_count'))
-                for i in recipes:
-                    print(i)
-
         context = {
             'recipes': recipes
         }

@@ -95,6 +95,8 @@ class TestAuthorizedUsers(TestCase):
         Favorite.objects.create(user=self.user, recipe=self.recipes[1])
         Favorite.objects.create(user=self.user, recipe=self.recipes[2])
         Favorite.objects.create(user=self.user, recipe=self.recipes[3])
+        response = self.client.get(reverse('favorites'))
+        self.assertEqual(response.context['favorites'].count(), 4)
         response = self.client.get(reverse('favorites'), data={'tag': 'BREAKFAST'})
         self.assertEqual(response.context['favorites'].count(), 3)
         response = self.client.get(reverse('favorites'), data={'tag': ['BREAKFAST', 'DINNER']})

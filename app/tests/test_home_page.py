@@ -53,6 +53,8 @@ class TestAuthorizedUsers(TestCase):
         self.assertContains(response, html, html=True)
 
     def test_tag_filter(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.context['recipes'].count(), 6)
         response = self.client.get(reverse('index'), data={'tag': 'BREAKFAST'})
         self.assertEqual(response.context['recipes'].count(), 5)
         response = self.client.get(reverse('index'), data={'tag': ['BREAKFAST', 'LUNCH']})
@@ -106,6 +108,9 @@ class TestUnauthorizedUsers(TestCase):
         self.assertContains(response, html, html=True)
 
     def test_tag_filter(self):
+
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.context['recipes'].count(), 6)
         response = self.client.get(reverse('index'), data={'tag': 'BREAKFAST'})
         self.assertEqual(response.context['recipes'].count(), 5)
         response = self.client.get(reverse('index'), data={'tag': ['BREAKFAST', 'LUNCH']})

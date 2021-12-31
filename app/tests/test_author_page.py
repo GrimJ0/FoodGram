@@ -61,6 +61,8 @@ class TestAuthorizedUsers(TestCase):
 
 
     def test_tag_filter(self):
+        response = self.client.get(reverse('author_recipe', kwargs={'username': 'veronika'}))
+        self.assertEqual(response.context['recipes'].count(), 2)
         response = self.client.get(reverse('author_recipe',
                                            kwargs={'username': 'veronika'}),
                                    data={'tag': 'BREAKFAST'})
@@ -127,6 +129,8 @@ class TestUnauthorizedUsers(TestCase):
         self.assertContains(response, html, html=True)
 
     def test_tag_filter(self):
+        response = self.client.get(reverse('author_recipe', kwargs={'username': 'veronika'}))
+        self.assertEqual(response.context['recipes'].count(), 2)
         response = self.client.get(reverse('author_recipe', kwargs={'username': 'veronika'}),
                                    data={'tag': 'BREAKFAST'})
         self.assertEqual(response.context['recipes'].count(), 1)
