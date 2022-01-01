@@ -12,5 +12,5 @@ urlpatterns = [
     path("remove_favorites/<int:id>/", RemoveFavoriteApi.as_view(), name='remove_favorites'),
     path("add_purchases/", AddPurchaseApi.as_view(), name='add_purchases'),
     path("remove_purchases/<int:id>/", RemovePurchaseApi.as_view(), name='remove_purchases'),
-    path("ingredients/", IngredientApi.as_view()),
+    path("ingredients/", IngredientApi.as_view(), name='ingredient'),
 ]

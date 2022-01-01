@@ -21,6 +21,13 @@ class TestAuthorizedUsers(TestCase):
     def test_new_recipe_page(self):
         self.assertEqual(self.response.status_code, 200)
 
+    def test_ingredient(self):
+        response = self.client.get(reverse('ingredient'), data={'query': 'апельсины'})
+        self.assertContains(response, '{"title": "апельсины крупные", "dimension": "шт."}')
+
+        response = self.client.get(reverse('ingredient'), data={'query': 'ап'})
+        self.assertContains(response, [])
+
     def test_new_recipe(self):
         with open('media/test/test_image_1.png', 'rb') as img:
             response = self.client.post(reverse('new_recipe'), data={

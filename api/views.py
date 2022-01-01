@@ -16,8 +16,10 @@ class IngredientApi(LoginRequiredMixin, View):
     @staticmethod
     def get(request, *args, **kwargs):
         ingredient = request.GET['query']
-        data = list(Ingredient.objects.filter(title__startswith=ingredient).values('title', 'dimension'))
-        return JsonResponse(data, safe=False)
+        data = []
+        if len(ingredient) >= 3:
+            data = list(Ingredient.objects.filter(title__startswith=ingredient).values('title', 'dimension'))
+        return JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False})
 
 
 class AddSubscriptionApi(LoginRequiredMixin, View):

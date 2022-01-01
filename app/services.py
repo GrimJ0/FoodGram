@@ -34,16 +34,6 @@ def add_ingredient(request):
     return ingredients
 
 
-def clear_ingredient_data():
-    """
-    Функция очищает базу RecipeIngredient от ингредиентов которые нигде не используются
-    """
-    recipes = RecipeIngredient.objects.all()
-    for recipe in recipes:
-        if not recipe.ingredients.all():
-            recipe.delete()
-
-
 def add_tag(request):
     """
     Функция проверяет, если в POST запросе есть какой то тег,
