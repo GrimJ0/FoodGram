@@ -100,10 +100,10 @@ class RemoveRecipeView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('index')
     slug_url_kwarg = 'recipe_slug'
 
-    def delete(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if request.user.id == self.get_object().author_id or request.user.role == 'admin':
-            return super().delete(self.get_object())
-        return redirect(self.get_success_url())
+            return super().get(request, *args, **kwargs)
+        return redirect('index')
 
 
 class AuthorRecipeList(GetContextDataMixin, ListView):

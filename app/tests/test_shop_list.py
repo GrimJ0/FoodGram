@@ -1,5 +1,4 @@
 import uuid
-from pprint import pprint
 
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -26,6 +25,18 @@ class TestAuthorizedUsers(TestCase):
     def test_purchases_page(self):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context['purchases'].count(), 1)
+
+    def test_recipe_title(self):
+        html = '<h3 class="recipe__title">test_4</h3>'
+        self.assertContains(self.response, html, html=True)
+
+    def test_recipe_time(self):
+        html = '<p class="recipe__text"><span class="icon-time"></span> 40 мин.</p>'
+        self.assertContains(self.response, html, html=True)
+
+    def test_recipe_image(self):
+        html = '<img'
+        self.assertContains(self.response, html)
 
     def test_add_purchases(self):
         response = self.client.post(reverse('add_purchases'), data={'id': self.recipes[1].id},

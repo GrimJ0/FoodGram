@@ -114,6 +114,29 @@ class TestAuthorizedUsers(TestCase):
         self.assertContains(self.response, html, html=True)
 
 
+class TestAdminUsers(TestCase):
+    fixtures = ['db_test.json', ]
+
+    def setUp(self):
+        """создание тестового клиента"""
+        self.client = Client()
+        self.user = User.objects.create_user(username='test_admin',
+                                             email='test_email@mail.ru',
+                                             password='test',
+                                             role='admin')
+        self.client.login(email='test_email@mail.ru', password='test')
+        self.author = User.objects.get(username='veronika')
+        self.recipe = Recipe.objects.filter(author=self.author).first()
+
+        self.response = self.client.get(reverse('recipe', kwargs={'recipe_slug': self.recipe.slug}))
+
+    def test_availability_of_edit_recipe(self):
+        html = f'''<a style="margin-left: 2.5em"
+        href="{reverse("edit_recipe", kwargs={"recipe_slug": self.recipe.slug})}"
+         class="single-card__text">Редактировать рецепт</a>'''
+        self.assertContains(self.response, html, html=True)
+
+
 class TestUnauthorizedUsers(TestCase):
     fixtures = ['db_test.json', ]
 
