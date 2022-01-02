@@ -56,7 +56,7 @@ FoodGram это онлайн-сервис, где пользователи мо�
     - SECRET_KEY= # сгенерировать ключ можно на сайте [Djecrety](https://djecrety.ir/)
     - EMAIL_HOST_USER= # почта для отправки писем пользователям
     - EMAIL_HOST_PASSWORD= # пароль от почты
-    - DJANGO_ALLOWED_HOSTS=* localhost 127.0.0.1 [::1]
+    - DJANGO_ALLOWED_HOSTS=localhost
     - DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
     - DATABASE=postgres # имя базы данных для entrypoint.sh
     - POSTGRES_DB=postgres # имя базы данных
@@ -92,15 +92,15 @@ _________________________________
    ```
 2) В созданной директории установите виртуальное окружение, активируйте его и установите необходимые зависимости:
    ```
-   python3 -m venv venv
-   ```
+   python -m venv venv
    ```
    on Windows 
-   . venv/Scripts/activate
    ```
+   venv/Scripts/activate
    ```
-   on Unix or MacOS 
-   . venv/bin/activate
+   on Unix or MacOS
+   ```
+   source mypython/bin/activate
    ```
    ```
    pip install -r requirements.txt
@@ -109,21 +109,21 @@ _________________________________
     - SECRET_KEY= # сгенерировать ключ можно на сайте [Djecrety](https://djecrety.ir/)
     - EMAIL_HOST_USER= # почта для отправки писем пользователям
     - EMAIL_HOST_PASSWORD= # пароль от почты
-    - DJANGO_ALLOWED_HOSTS=* localhost 127.0.0.1 [::1]
+    - DJANGO_ALLOWED_HOSTS=localhost
 
 4) Выполните миграции:
    ```
    python manage.py migrate
    ```
-5) Cоздайте суперпользователя:
-   ```
-   python manage.py createsuperuser
-   ```
-6) Загрузите тестовые данные:
+5) Загрузите тестовые данные, если хотите:
    ```
    python manage.py loaddata db.json
    ```
-8) Запустите сервер:
+6) Cоздайте суперпользователя:
+   ```
+   python manage.py createsuperuser
+   ```
+7) Запустите сервер:
    ```
    python manage.py runserver
    ```
