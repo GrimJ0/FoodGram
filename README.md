@@ -96,11 +96,11 @@ _________________________________
    ```
    on Windows 
    ```
-   venv/Scripts/activate
+   venv\Scripts\activate
    ```
    on Unix or MacOS
    ```
-   source mypython/bin/activate
+   source venv/bin/activate
    ```
    ```
    pip install -r requirements.txt
